@@ -6,8 +6,8 @@ import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 import uz.texnomart.container.Container;
 
 public class Main {
-
     public static void main(String[] args) {
+        System.out.println("ismatov shaxzod ");
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             MyBot myBot = new MyBot();

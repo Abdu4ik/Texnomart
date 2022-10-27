@@ -18,7 +18,7 @@ public class KeyboardButtonUtil {
 
     public static ReplyKeyboard getAdminMenu() {
         return getMarkup(getRowList(
-                getRow(getButton(_PRODUCT_CRUD_), getButton(_ADD_ADMIN_)),
+                getRow(getButton(_PRODUCT_CRUD_), getButton(_EDIT_ADMIN_)),
                 getRow(getButton(_SHOW_MESSAGES_), getButton(_DISCOUNT_))
         ));
     }

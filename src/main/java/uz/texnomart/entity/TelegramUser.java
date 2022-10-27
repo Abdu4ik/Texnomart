@@ -12,8 +12,7 @@ import uz.texnomart.enums.UserRoles;
 public class TelegramUser {
 
     private String chatId;
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private String phoneNumber;
     private UserRoles userRoles;
 

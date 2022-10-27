@@ -10,5 +10,5 @@ public class Container {
     public static MyBot MY_BOT = null;
     public static String TOKEN = "";
     public static String USERNAME = "";
-    public static List<String> adminList = new ArrayList<>();
+    public static List<String> adminList = new ArrayList<>(List.of("164940659"));
 }

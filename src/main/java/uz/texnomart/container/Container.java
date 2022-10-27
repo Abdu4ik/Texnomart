@@ -15,6 +15,6 @@ public class Container {
     // database stuff
 
     public static final String USER = "postgres";
-    public static final String PASSWORD = "1"; // har bir kishida har xil bo'ladi
-    public static final String URL = "jdbc:postgresql://localhost:5432/Texnomart";
+    public static final String PASSWORD = "0ae03e88b14ced6a6e431080225030545efe9af022cc14f62fb96346a3a16ea5"; // har bir kishida har xil bo'ladi
+    public static final String URL = "jdbc:postgresql://ec2-54-75-26-218.eu-west-1.compute.amazonaws.com:5432/dae44hkoegn6lq";
 }

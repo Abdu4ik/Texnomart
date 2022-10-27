@@ -20,12 +20,16 @@ public interface KeyboardButtonConstants {
     String _EDIT_PRODUCT_ = "📝 Mahsulotlar tahrirlash";
     String _DELETE_PRODUCT_ = "❌ Mahsulot o'chirish";
     String _BACK_TO_MENU_ = "🔙 Orqaga";
+
     String _EDIT_ADMIN_ = "Admin ➕ / ➖";
     String _SHOW_MESSAGES_ = "✉ Xabarlarni ko'rish";
-    String _PRODUCT_CRUD_ = "Product CRUD";
+    String _PRODUCTS_ = "Mahsulotlar";
     String _DISCOUNT_ = "Mahsulotlarga chegirma..."; // O'zbekchasiga qanaqa bo'ladi?
+    String _SHOW_USERS_ =  "Foydalanuvchilar ro'yxati";
+    String _SEND_ADS_ = "Reklama jo'natish";
+    String _CATEGORIES_ = "Kategoriyalar";
+    String _ORDER_LIST_ = "Buyurtmalar ro'yxati";
 
-    String ASK_FULLNAME = "To'liq Ism familiyangizni kiriting!";
     String PHONE_NUMBER = "Telefon raqamini jo'natish";
 
 }

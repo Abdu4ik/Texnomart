@@ -2,11 +2,15 @@ package uz.texnomart.controller;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import uz.texnomart.container.Container;
 import uz.texnomart.entity.TelegramUser;
+import uz.texnomart.service.AdminService;
 
 
 public class    UserController {
     public static void handleMessage(Message message) {
+
+         AdminService.checkAdmin(message);
 
         if (message.hasContact()) {
             handleContact(message, message.getContact());
@@ -39,6 +43,9 @@ public class    UserController {
 
 
     private static void handleContact(Message message, Contact contact) {
+
+        String chatId = String.valueOf(message.getChatId());
+
 
     }
 

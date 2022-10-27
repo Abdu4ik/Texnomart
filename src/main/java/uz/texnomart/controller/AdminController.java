@@ -56,7 +56,7 @@ public class AdminController {
             MY_BOT.sendMsg(sendDocument);
 
         }else if (text.equals(_SEND_ADS_)){
-            sendMessage.setText("Reklama ");
+            sendMessage.setText("🖼️ Reklama rasmini jo'nating.");
         }else if (text.equals(_DISCOUNT_)){
 
         }else if (text.equals(_CATEGORIES_)){

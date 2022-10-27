@@ -30,27 +30,8 @@ public class UserController {
         sendMessage.setChatId(customer.getChatId());
 
         if ("/start".equals(text)) {
-            Connection connection = null;
-            try {
-                connection = DriverManager.getConnection(url, dbuser, dbpassword);
-                String query = "select * from customer where chat_id=?";
-
-                PreparedStatement preparedStatement = connection.prepareStatement(query);
-                preparedStatement.setString(1,customer.getChatId());
-                ResultSet resultSet = preparedStatement.executeQuery();
-
-                if(resultSet.getString("chat_id")==null){
-                    // new telegram user menu qilish kk fotih bn murod uchun
-                }
-                else{
-                    // admin qismi uchun menu qilish kk buni
-                    // abdullo aka shoxsanam qiladi
-                }
 
 
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
         }
     }
 

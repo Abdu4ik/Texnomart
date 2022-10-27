@@ -1,5 +1,6 @@
 package uz.texnomart.util;
 
+
 public interface KeyboardButtonConstants {
 
     // buttons for users 👇
@@ -9,6 +10,7 @@ public interface KeyboardButtonConstants {
     String MESSAGE_ADMIN = "Adminga murojaat qilish";
     String CATEGORIES = "Kategoriyalarni ko'rish";
     String DISCOUNTED_PRODUCTS = "Chegirmali mahsulotlarni ko'rish";
+
 
 
     // buttons for admin 👇

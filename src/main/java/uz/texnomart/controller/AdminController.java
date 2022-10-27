@@ -28,6 +28,9 @@ public class AdminController {
     }
 
     private static void handlePhoto(Message message, List<PhotoSize> photoSizeList) {
+        String text = message.getText();
+
+        System.out.println("text = " + text);
 
     }
 

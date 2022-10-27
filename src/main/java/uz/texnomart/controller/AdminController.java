@@ -6,7 +6,6 @@ import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import uz.texnomart.container.Container;
 import uz.texnomart.util.KeyboardButtonUtil;
 
 import java.util.List;
@@ -28,6 +27,7 @@ public class AdminController {
 
 
     private static void handleContact(Message message, Contact contact) {
+
     }
 
     private static void handleText(Message message) {
@@ -35,11 +35,12 @@ public class AdminController {
         String chatId = String.valueOf(message.getChatId());
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        if (text.equals("/start")) {
-            sendMessage.setText("Assalom alaykum, Texnomart botiga xush kelibsiz!");
-            sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
-            Container.MY_BOT.sendMsg(sendMessage);
+        if (text.equals("/start"))
+        {
+            sendMessage.setText("Assalom alaykum!\nTexnomart botiga xush kelibsiz!\nKontaktingizni jonating.");
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
         }
+
     }
 
 

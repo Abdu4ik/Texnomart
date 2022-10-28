@@ -24,6 +24,11 @@ public class KeyboardButtonUtil {
                 getRow(getButton(_CATEGORIES_), getButton(_ORDER_LIST_))
         ));
     }
+    public static ReplyKeyboard getBackMenu() {
+        return getMarkup(getRowList(
+                getRow(getButton(BACK))
+        ));
+    }
 
     public static ReplyKeyboard getUserMenu() {
         return getMarkup(getRowList(

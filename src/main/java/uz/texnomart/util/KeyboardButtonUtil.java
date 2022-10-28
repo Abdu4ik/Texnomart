@@ -18,8 +18,15 @@ public class KeyboardButtonUtil {
 
     public static ReplyKeyboard getAdminMenu() {
         return getMarkup(getRowList(
-                getRow(getButton(_PRODUCT_CRUD_), getButton(_EDIT_ADMIN_)),
-                getRow(getButton(_SHOW_MESSAGES_), getButton(_DISCOUNT_))
+                getRow(getButton(_PRODUCTS_), getButton(_EDIT_ADMIN_)),
+                getRow(getButton(_SHOW_MESSAGES_), getButton(_DISCOUNT_)),
+                getRow(getButton(_SHOW_USERS_), getButton(_SEND_ADS_)),
+                getRow(getButton(_CATEGORIES_), getButton(_ORDER_LIST_))
+        ));
+    }
+    public static ReplyKeyboard getBackMenu() {
+        return getMarkup(getRowList(
+                getRow(getButton(BACK))
         ));
     }
 

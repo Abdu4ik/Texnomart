@@ -7,10 +7,12 @@ import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import uz.texnomart.container.Container;
 import uz.texnomart.container.Container.*;
 import uz.texnomart.service.AdminService;
 import uz.texnomart.util.KeyboardButtonUtil;
 
+import java.io.File;
 import java.util.List;
 
 import static uz.texnomart.container.Container.MY_BOT;
@@ -48,8 +50,9 @@ public class AdminController {
         sendDocument.setChatId(chatId);
         if (text.equals("/start"))
         {
-            sendMessage.setText("Assalom alaykum!\nTexnomart botiga xush kelibsiz!\nKontaktingizni jonating.");
-            sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
+            sendMessage.setText("Assalom alaykum " + message.getFrom().getFirstName() + "!\nTexnomart botiga xush kelibsiz!");
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
+            MY_BOT.sendMsg(sendMessage);
         }else if (text.equals(_SHOW_USERS_)){
             sendDocument.setDocument(new InputFile(AdminService.showUsersAsPDF()));
             MY_BOT.sendMsg(sendDocument);
@@ -57,9 +60,9 @@ public class AdminController {
             sendDocument.setDocument(new InputFile(AdminService.showUsersAsPDF()));
             sendDocument.setCaption("Admin qilmoqchi bo'lgan foydalanuvchining ID sini kiriting.");
             MY_BOT.sendMsg(sendDocument);
-
         }else if (text.equals(_SEND_ADS_)){
-            sendMessage.setText("🖼️ Reklama rasmini jo'nating.");
+            sendMessage.setText("🖼️ Reklama matnini rasmi bilan jo'nating yoki reklama matnini jonating.");
+
         }else if (text.equals(_DISCOUNT_)){
 
         }else if (text.equals(_CATEGORIES_)){

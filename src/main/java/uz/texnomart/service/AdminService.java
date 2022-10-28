@@ -44,7 +44,6 @@ public class AdminService {
             e.printStackTrace();
         }
         return writerPdf(telegramUserList);
-
     }
 
     public static File writerPdf(List<TelegramUser> telegramUserList) {
@@ -92,7 +91,6 @@ public class AdminService {
             e.printStackTrace();
         }
         return file;// Todo najim to'gola man hozir pdf faylni create qildim sila buni send file qilib resoursedan ochirib yuboringla xaymi
-
     }
 }
 

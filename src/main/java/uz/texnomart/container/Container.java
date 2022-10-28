@@ -8,9 +8,9 @@ import java.util.List;
 public class Container {
 
     public static MyBot MY_BOT = null;
-    public static String TOKEN = "5026381874:AAH9wI4PkMgCpw_gPFaNh6y_o5IV7YizEoc";
-    public static String USERNAME = "@imkon_uz_muoomo_bot";
-    public static List<String> adminList = new ArrayList<>(List.of("164940659","698010075"));
+    public static String TOKEN = "5737907108:AAH2OGMUwZr4f6ecoXc2sEen43I5oaCEjDM";
+    public static String USERNAME = "@Baxtigul_JM3_V1_bot";
+    public static List<String> adminList = new ArrayList<>(List.of("164940659","698010075","609762012"));
 
     // database stuff
 

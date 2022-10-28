@@ -54,14 +54,21 @@ public class AdminController {
             sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
             MY_BOT.sendMsg(sendMessage);
         }else if (text.equals(_SHOW_USERS_)){
-            sendDocument.setDocument(new InputFile(AdminService.showUsersAsPDF()));
+            AdminService.showUsersAsPDF();
+            File file = new File(Container.BASE_FOLDER, "customer.pdf");
+            sendDocument.setDocument(new InputFile(file));
             MY_BOT.sendMsg(sendDocument);
+            file.delete();
         }else if (text.equals(_EDIT_ADMIN_)){
-            sendDocument.setDocument(new InputFile(AdminService.showUsersAsPDF()));
+            AdminService.showUsersAsPDF();
+            File file = new File(Container.BASE_FOLDER, "customer.pdf");
+            sendDocument.setDocument(new InputFile(file));
+            MY_BOT.sendMsg(sendDocument);
             sendDocument.setCaption("Admin qilmoqchi bo'lgan foydalanuvchining ID sini kiriting.");
             MY_BOT.sendMsg(sendDocument);
+            file.delete();
         }else if (text.equals(_SEND_ADS_)){
-            sendMessage.setText("🖼️ Reklama matnini rasmi bilan jo'nating yoki reklama matnini jonating.");
+            sendMessage.setText("🖼️ Reklamangizni jo'nating.");
 
         }else if (text.equals(_DISCOUNT_)){
 

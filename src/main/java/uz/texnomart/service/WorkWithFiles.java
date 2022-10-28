@@ -20,7 +20,7 @@ import static uz.texnomart.container.Container.*;
 
 public class WorkWithFiles {
 
-    public static File writerPdf(List<TelegramUser> telegramUserList) {
+    public static void writerPdf(List<TelegramUser> telegramUserList) {
 
         File file = new File(Container.BASE_FOLDER, "customer.pdf");
         file.getParentFile().mkdirs();
@@ -60,8 +60,6 @@ public class WorkWithFiles {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return file;// Todo najim to'gola man hozir pdf faylni create qildim sila buni send file qilib resoursedan ochirib yuboringla xaymi
-
     }
 
 }

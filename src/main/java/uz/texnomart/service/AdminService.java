@@ -32,7 +32,7 @@ import static uz.texnomart.container.Container.*;
 
 public class AdminService {
 
-    public static File showUsersAsPDF() {
+    public static void showUsersAsPDF() {
 
         List<TelegramUser> telegramUserList = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
@@ -53,7 +53,7 @@ public class AdminService {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return WorkWithFiles.writerPdf(telegramUserList);
+        WorkWithFiles.writerPdf(telegramUserList);
 
     }
 

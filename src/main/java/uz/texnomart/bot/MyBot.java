@@ -22,8 +22,8 @@ public class MyBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         if (update.hasMessage()) {
             if (Container.adminList.contains(String.valueOf(update.getMessage().getChatId()))) {
-                AdminController.handleMessage(update.getMessage());
-            } else UserController.handleMessage(update.getMessage());
+                AdminController.handleMessage(update);
+            } else UserController.handleMessage(update);
         } else if (update.hasCallbackQuery()) {
             if (Container.adminList.contains(String.valueOf(update.getCallbackQuery().getMessage().getChatId())))
                 AdminController.handleCallBackQuery(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getData());

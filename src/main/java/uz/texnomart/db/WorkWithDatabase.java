@@ -13,8 +13,8 @@ public class WorkWithDatabase {
             Class.forName("org.postgresql.Driver");
             Statement statement = connection.createStatement();
 
-            String query = "INSERT INTO users (chat_id, firstname, lastname, phone_number) " +
-                    "VALUES (" + telegramUser.getChatId() + ", " + telegramUser.getFullName() + ", " + telegramUser.getPhoneNumber() + ")";
+            String query = "INSERT INTO customer (chat_id, fullname, phone_number) " +
+                    "VALUES ('" + telegramUser.getChatId() + "', '" + telegramUser.getFullName() + "', '" + telegramUser.getPhoneNumber() + "')";
             statement.execute(query);
 
 
@@ -30,14 +30,15 @@ public class WorkWithDatabase {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, chatId);
             ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.getString("chat_id") == null) {
-                return false;
+            while (resultSet.next()) {
+                if (resultSet.getString("chat_id") != null) {
+                    return true;
+                }
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return true;
+        return false;
     }
 }

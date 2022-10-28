@@ -3,12 +3,8 @@ package uz.texnomart.controller;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Contact;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import org.telegram.telegrambots.meta.api.objects.*;
 import uz.texnomart.container.Container;
-import uz.texnomart.container.Container.*;
 import uz.texnomart.service.AdminService;
 import uz.texnomart.util.KeyboardButtonUtil;
 
@@ -19,7 +15,9 @@ import static uz.texnomart.container.Container.MY_BOT;
 import static uz.texnomart.util.KeyboardButtonConstants.*;
 
 public class AdminController {
-    public static void handleMessage(Message message) {
+    public static void handleMessage(Update update) {
+
+        Message message = update.getMessage();
         if (message.hasText()) {
             handleText(message);
         } else if (message.hasContact()) {

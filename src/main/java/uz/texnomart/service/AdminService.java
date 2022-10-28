@@ -1,4 +1,5 @@
 package uz.texnomart.service;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import uz.texnomart.container.Container;
 import uz.texnomart.entity.TelegramUser;
 import uz.texnomart.enums.AdminStatus;
@@ -129,7 +130,12 @@ public class AdminService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return file;// Todo najim to'gola man hozir pdf faylni create qildim sila buni send file qilib resoursedan ochirib yuboringla xaymi
+        return file;
+        // Todo najim to'gola man hozir pdf faylni create qildim sila buni send file qilib resoursedan ochirib yuboringla xaymi
+    }
+
+    public static void checkAdmin(Message message) {
+
     }
 }
 

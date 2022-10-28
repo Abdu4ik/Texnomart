@@ -11,8 +11,8 @@ import java.util.Map;
 public class Container {
 
     public static MyBot MY_BOT = null;
-    public static String TOKEN = "5737907108:AAH2OGMUwZr4f6ecoXc2sEen43I5oaCEjDM";
-    public static String USERNAME = "@Baxtigul_JM3_V1_bot";
+    public static String TOKEN = "5780755594:AAF-O1phsQHHW-XgKTzeq0G_Jx5N_9l4_aQ";
+    public static String USERNAME = "http://t.me/TestBotForKomilovFotikhjan_bot";
     public static List<String> adminList = new ArrayList<>(List.of("164940659","698010075","609762012"));
 
     // database stuff

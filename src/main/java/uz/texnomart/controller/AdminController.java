@@ -3,17 +3,21 @@ package uz.texnomart.controller;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import uz.texnomart.container.Container.*;
+import uz.texnomart.enums.AdminStatus;
 import uz.texnomart.service.AdminService;
+import uz.texnomart.util.InlineKeyboardButtonUtil;
 import uz.texnomart.util.KeyboardButtonUtil;
 
 import java.util.List;
 
-import static uz.texnomart.container.Container.MY_BOT;
+import static uz.texnomart.container.Container.*;
+import static uz.texnomart.enums.AdminStatus.*;
 import static uz.texnomart.util.KeyboardButtonConstants.*;
 
 public class AdminController {
@@ -28,7 +32,19 @@ public class AdminController {
     }
 
     private static void handlePhoto(Message message, List<PhotoSize> photoSizeList) {
+        String chatId = String.valueOf(message.getChatId());
 
+        if (adminMap.containsKey(chatId) && adminMap.get(chatId) == SEND_ADS) {
+            String caption = message.getCaption();
+            String fileId = photoSizeList.get(photoSizeList.size() - 1).getFileId();
+            SendPhoto sendPhoto = new SendPhoto();
+            sendPhoto.setCaption(caption);
+            sendPhoto.setChatId(chatId);
+            sendPhoto.setPhoto(new InputFile(fileId));
+            sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmationButtons());
+            MY_BOT.sendMsg(sendPhoto);
+
+        }
     }
 
 
@@ -45,8 +61,9 @@ public class AdminController {
         sendDocument.setChatId(chatId);
         if (text.equals("/start"))
         {
-            sendMessage.setText("Assalom alaykum!\nTexnomart botiga xush kelibsiz!\nKontaktingizni jonating.");
-            sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
+            sendMessage.setText("Assalom alaykum!\nTexnomart botiga xush kelibsiz!");
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
+            MY_BOT.sendMsg(sendMessage);
         }else if (text.equals(_SHOW_USERS_)){
             sendDocument.setDocument(new InputFile(AdminService.showUsersAsPDF()));
             MY_BOT.sendMsg(sendDocument);
@@ -56,7 +73,9 @@ public class AdminController {
             MY_BOT.sendMsg(sendDocument);
 
         }else if (text.equals(_SEND_ADS_)){
-            sendMessage.setText("🖼️ Reklama rasmini jo'nating.");
+            adminMap.put(chatId, SEND_ADS);
+            sendMessage.setText("🖼 Reklama matnini rasmi bilan jo'nating yoki reklama matnini jonating.");
+            MY_BOT.sendMsg(sendMessage);
         }else if (text.equals(_DISCOUNT_)){
 
         }else if (text.equals(_CATEGORIES_)){
@@ -67,6 +86,10 @@ public class AdminController {
 
         }else if (text.equals(_SHOW_MESSAGES_)){
 
+        }else if (adminMap.containsKey(chatId) && adminMap.get(chatId) == SEND_ADS){
+            sendMessage.setText(text);
+            sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmationButtons());
+            MY_BOT.sendMsg(sendMessage);
         }
 
     }

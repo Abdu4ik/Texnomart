@@ -52,4 +52,9 @@ public class InlineKeyboardButtonUtil {
         InlineKeyboardButton button = getButton(EDIT_NAME, EDIT_CALLBACK);
         return new InlineKeyboardMarkup(Arrays.asList(Arrays.asList(button)));
     }
+
+    public static ReplyKeyboard getDeleteButton(Integer id) {
+        return getMarkup(getButton(YES, YES_CALL+"/"+id),
+                getButton(NO, NO_CALL));
+    }
 }

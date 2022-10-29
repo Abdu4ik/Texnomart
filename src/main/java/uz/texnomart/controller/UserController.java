@@ -42,17 +42,17 @@ public class UserController {
         if ("/start".equals(text)) {
 
             if (WorkWithDatabase.doesExist(chatId)){
-                sendMessage.setText("Hurmatli mijoz hush kelibsiz ... ");
+                sendMessage.setText("Hurmatli mijoz xush kelibsiz ... 🎉🎉");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
                 Container.MY_BOT.sendMsg(sendMessage);
             } else if (!WorkWithDatabase.doesExist(chatId)) {
 
-                sendMessage.setText("Assalamu Aleykum \n O'z Kotaktingizni Jonatish tugmasi orqali jonating : ");
+                sendMessage.setText("Assalamu Aleykum \n O'z kontaktingizni jo'natish tugmasi orqali jo'nating");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
                 Container.MY_BOT.sendMsg(sendMessage);
             }
         } else {
-            sendMessage.setText("Nimadir Hato ketti,qayta urunib koring\nyoki /help yoki /start ni bosing");
+            sendMessage.setText("Nimadir xato ketti, qayta urunib ko'ring\nyoki /help yoki /start ni bosing");
             Container.MY_BOT.sendMsg(sendMessage);
         }
     }

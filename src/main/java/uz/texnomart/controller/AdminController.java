@@ -245,7 +245,6 @@ public class AdminController {
         sendMessage.setChatId(chatId);
 
         DeleteMessage deleteMessage = new DeleteMessage(chatId,message.getMessageId());
-        MY_BOT.sendMsg(deleteMessage);
 
         if (AdminService.checkAdminStatus(chatId,AdminStatus.DISCOUNT_CONFIRM)&&data.equals(YES_CALL)){
             for (Discount discount : Container.discountList) {
@@ -268,8 +267,8 @@ public class AdminController {
                 }
             }
         }
-            if (data.equals(InlineKeyboardButtonConstants.YES_CALL) && AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.SEND_ADS)){
-                Advertisement adToBeSent = WorkWithDatabase.getAdFromDB(String.valueOf(message.getChatId()));
+            if (data.equals(InlineKeyboardButtonConstants.YES_CALL) && AdminService.checkAdminStatus(chatId, AdminStatus.SEND_ADS)){
+                Advertisement adToBeSent = WorkWithDatabase.getAdFromDB(chatId);
                 AdminService.sendAdsToAllCustomers(adToBeSent.getPhoto(), adToBeSent.getCaption());
                 MY_BOT.sendMsg(deleteMessage);
             }

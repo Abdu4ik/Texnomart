@@ -125,8 +125,8 @@ public class AdminService {
 
     public static void sendAdsToAllCustomers(String photo, String caption){
         SendPhoto sendPhoto = new SendPhoto();
-//        select * from customer where user_role = 'USER'::user_roles order by id;
-
+        sendPhoto.setPhoto(new InputFile(photo));
+        sendPhoto.setCaption(caption);
 
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement statement = connection.createStatement()
@@ -138,9 +138,8 @@ public class AdminService {
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
-                String chat_id = resultSet.getString("chat_id");
+                String chat_id = resultSet.getString(1);
                 sendPhoto.setChatId(chat_id);
-                sendPhoto.setPhoto(new InputFile(photo));
                 MY_BOT.sendMsg(sendPhoto);
             }
         } catch (SQLException e) {

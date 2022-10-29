@@ -84,6 +84,7 @@ public class AdminController {
         sendMessage.setChatId(chatId);
         sendDocument.setChatId(chatId);
         if (text.equals("/start")) {
+            AdminService.putAminsIntoMap(chatId);
             sendMessage.setText("Assalom alaykum " + message.getFrom().getFirstName() + "!\nTexnomart botiga xush kelibsiz!");
             sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
             MY_BOT.sendMsg(sendMessage);
@@ -112,8 +113,6 @@ public class AdminController {
             sendMessage.setText("Chegirma rasmini yoki nomini yoki rasmi bilan nomini jo'nating");
             MY_BOT.sendMsg(sendMessage);
         } else if (text.equals(_CATEGORIES_)) {
-            MY_BOT.sendMsg(sendMessage);
-        }else if (text.equals(_DISCOUNT_)){
 
         }else if (text.equals(_CATEGORIES_)){
 
@@ -261,7 +260,6 @@ public class AdminController {
             if (data.equals(InlineKeyboardButtonConstants.YES_CALL) && AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.SEND_ADS)){
                 Advertisement adToBeSent = WorkWithDatabase.getAdFromDB(String.valueOf(message.getChatId()));
                 AdminService.sendAdsToAllCustomers(adToBeSent.getPhoto(), adToBeSent.getCaption());
-                DeleteMessage deleteMessage = new DeleteMessage(String.valueOf(message.getChatId()), message.getMessageId());
                 MY_BOT.sendMsg(deleteMessage);
             }
     }

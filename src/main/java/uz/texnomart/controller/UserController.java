@@ -3,9 +3,14 @@ package uz.texnomart.controller;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
+import uz.texnomart.container.Container;
+import uz.texnomart.db.WorkWithDatabase;
 import uz.texnomart.entity.TelegramUser;
-
-import java.sql.*;
+import uz.texnomart.enums.UserRoles;
+import uz.texnomart.service.AdminService;
+import uz.texnomart.util.KeyboardButtonUtil;
 
 
 public class UserController {
@@ -13,10 +18,15 @@ public class UserController {
     private static final String dbuser = "utpvoxxsoitfbq";
     private static final String dbpassword = "0ae03e88b14ced6a6e431080225030545efe9af022cc14f62fb96346a3a16ea5";
 
-    public static void handleMessage(Message message) {
+    public static void handleMessage(Update update) {
+
+        Message message = update.getMessage();
+        User user = update.getMessage().getFrom();
+
+         AdminService.checkAdmin(message);
 
         if (message.hasContact()) {
-            handleContact(message, message.getContact());
+            handleContact(user,message, message.getContact());
         }
         if (message.hasText()) {
             handleText(message, message.getText());
@@ -25,18 +35,45 @@ public class UserController {
     }
 
     private static void handleText(Message message, String text) {
-        TelegramUser customer = new TelegramUser();
+
+        String chatId = String.valueOf(message.getChatId());
+
         SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(customer.getChatId());
+        sendMessage.setChatId(chatId);
 
         if ("/start".equals(text)) {
 
+            if (WorkWithDatabase.doesExist(chatId)){
+                sendMessage.setText("Hurmatli mijoz hush kelibsiz ... ");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
+                Container.MY_BOT.sendMsg(sendMessage);
+            } else if (!WorkWithDatabase.doesExist(chatId)) {
 
+                sendMessage.setText("Assalamu Aleykum \n O'z Kotaktingizni Jonatish tugmasi orqali jonating : ");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
+                Container.MY_BOT.sendMsg(sendMessage);
+            }
+        } else {
+            sendMessage.setText("Nimadir Hato ketti,qayta urunib koring\nyoki /help yoki /start ni bosing");
+            Container.MY_BOT.sendMsg(sendMessage);
         }
     }
 
 
-    private static void handleContact(Message message, Contact contact) {
+    private static void handleContact( User user ,Message message, Contact contact) {
+
+        String chatId = String.valueOf(message.getChatId());
+
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+
+             sendMessage.setText("""
+                     Siz Bizning botimizda yangi ekansiz
+                      Biz Sizni Ro'yhatga olib qoydik!!!\s
+                     Hush kelibsiz ....""");
+             WorkWithDatabase.addUsers(new TelegramUser(chatId,user.getFirstName()+user.getLastName(),contact.getPhoneNumber(), UserRoles.USER));
+             sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
+             Container.MY_BOT.sendMsg(sendMessage);
 
     }
 

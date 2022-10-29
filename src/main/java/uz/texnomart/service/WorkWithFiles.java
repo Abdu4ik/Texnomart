@@ -56,7 +56,6 @@ public class WorkWithFiles {
 
             document.add(table);
 
-
         } catch (IOException e) {
             e.printStackTrace();
         }

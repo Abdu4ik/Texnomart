@@ -11,9 +11,9 @@ public interface InlineKeyboardButtonConstants {
     String REMOVE = "O'chirish ❌";
     String REMOVE_CALL = "_DELETE_";
 
-    String YES = "HA";
+    String YES = "Tasdiqlash ✅";
     String YES_CALL = "_Y_E_S_";
-    String NO = "YO'Q";
+    String NO = "Bekor qilish ❌";
     String NO_CALL = "_N_O_";
 
     String DELETE = "O'chirish";

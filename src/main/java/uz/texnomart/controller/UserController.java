@@ -23,8 +23,6 @@ public class UserController {
         Message message = update.getMessage();
         User user = update.getMessage().getFrom();
 
-         AdminService.checkAdmin(message);
-
         if (message.hasContact()) {
             handleContact(user,message, message.getContact());
         }

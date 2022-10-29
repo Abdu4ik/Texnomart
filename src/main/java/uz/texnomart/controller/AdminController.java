@@ -63,7 +63,19 @@ public class AdminController {
         sendMessage.setChatId(chatId);
 
         if (AdminService.checkAdminStatus(chatId, AdminStatus.ADD_DISCOUNT)) {
-            Container.discountList.add(new Discount(chatId, null, discountName, null, null, fileId));
+            boolean isDiscountExist = false;
+            for (Discount discount : Container.discountList) {
+                if (discount.getChatId().equals(chatId)){
+                    discount.setChatId(chatId);
+                    discount.setName(discountName);
+                    discount.setPhoto_file_id(fileId);
+                    isDiscountExist = true;
+                    break;
+                }
+            }
+            if (!isDiscountExist)
+                Container.discountList.add(new Discount(chatId, null, discountName, null, null, fileId));
+
             sendMessage.setText("Chegirma foizini kiriting: ");
             AdminService.changeAdminStatus(chatId, AdminStatus.SEND_DISCOUNT_PERCENTAGE);
             MY_BOT.sendMsg(sendMessage);
@@ -113,8 +125,6 @@ public class AdminController {
             sendMessage.setText("Chegirma rasmini yoki nomini yoki rasmi bilan nomini jo'nating");
             MY_BOT.sendMsg(sendMessage);
         } else if (text.equals(_CATEGORIES_)) {
-
-        }else if (text.equals(_CATEGORIES_)){
 
         }else if (text.equals(_PRODUCTS_)){
 
@@ -191,10 +201,10 @@ public class AdminController {
                         sendPhoto.setPhoto(new InputFile(discount.getPhoto_file_id()));
                         String photoCaption = "";
 
-                        if (discount.getName()!=null)
-                            photoCaption = photoCaption.concat(discount.getName());
+                        if (discount.getName()!=null){
+                            photoCaption = photoCaption.concat(discount.getName());}
 
-                        photoCaption = discount.getName() + "\n\nChegirma foizi: " +
+                        photoCaption = "Chegirma foizi: " +
                                 discount.getDiscount_percentage() +
                                 "\n\nBoshlanish vaqti: " +
                                 discount.getStart_time() +

@@ -38,8 +38,8 @@ public class InlineKeyboardButtonUtil {
         return new InlineKeyboardMarkup(Arrays.asList(inlineKeyboardButtonList));
     }
 
-    public static InlineKeyboardMarkup getDeleteButton(String id) {
-        InlineKeyboardButton button = getButton(DELETE, DELETE_CALL+"/"+id);
+    public static InlineKeyboardMarkup getDeleteButton() {
+        InlineKeyboardButton button = getButton(DELETE, DELETE_CALL);
         return getMarkup(button);
     }
 

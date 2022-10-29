@@ -10,10 +10,17 @@ import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import uz.texnomart.container.Container;
+import uz.texnomart.container.Container.*;
+import uz.texnomart.db.WorkWithDatabase;
+import uz.texnomart.entity.Advertisement;
+import uz.texnomart.enums.AdminStatus;
 import uz.texnomart.db.WorkWithDatabase;
 import uz.texnomart.entity.Discount;
 import uz.texnomart.enums.AdminStatus;
 import uz.texnomart.service.AdminService;
+import uz.texnomart.util.InlineKeyboardButtonConstants;
+import uz.texnomart.util.InlineKeyboardButtonUtil;
+import uz.texnomart.util.KeyboardButtonConstants;
 import uz.texnomart.util.InlineKeyboardButtonUtil;
 import static uz.texnomart.util.InlineKeyboardButtonConstants.*;
 import uz.texnomart.util.KeyboardButtonUtil;
@@ -23,6 +30,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static uz.texnomart.container.Container.MY_BOT;
+import static uz.texnomart.container.Container.adminMap;
 import static uz.texnomart.util.KeyboardButtonConstants.*;
 
 public class AdminController {
@@ -37,6 +45,17 @@ public class AdminController {
     }
 
     private static void handlePhoto(Message message, List<PhotoSize> photoSizeList) {
+        SendPhoto sendPhoto = new SendPhoto();
+        sendPhoto.setChatId(message.getChatId());
+        String photo = photoSizeList.get(photoSizeList.size() - 1).getFileId();
+        String caption = message.getCaption();
+        if (AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.SEND_ADS)){
+            WorkWithDatabase.addAdvert(new Advertisement(caption, photo, String.valueOf(message.getChatId())));
+            sendPhoto.setPhoto(new InputFile(photo));
+            sendPhoto.setCaption(caption+"\n\n Shu e'lonni barcha foydalanuvchilarga yurborasizmi?");
+            sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmationButtons());
+            MY_BOT.sendMsg(sendPhoto);
+        }
         String chatId = String.valueOf(message.getChatId());
         String fileId = photoSizeList.get(photoSizeList.size() - 1).getFileId();
         String discountName = message.getCaption();
@@ -75,14 +94,17 @@ public class AdminController {
             sendDocument.setDocument(new InputFile(file));
             MY_BOT.sendMsg(sendDocument);
             file.delete();
-        } else if (text.equals(_EDIT_ADMIN_)) {
+        }else if (text.equals(_EDIT_ADMIN_)){
+            AdminService.changeAdminStatus(chatId, AdminStatus.EDIT_ADMIN); // admin statusni Edit qilishga o'tkazib qo'yadi
             AdminService.showUsersAsPDF();
             File file = new File(Container.BASE_FOLDER, "customer.pdf");
             sendDocument.setDocument(new InputFile(file));
             sendDocument.setCaption("Admin qilmoqchi bo'lgan foydalanuvchining ID sini kiriting.");
             MY_BOT.sendMsg(sendDocument);
-            file.delete();
-        } else if (text.equals(_SEND_ADS_)) {
+            file.delete();  // fileni jo'natgandan keyin darhol bazadan o'chirib yuboradi
+        }else if (text.equals(_SEND_ADS_)){
+            adminMap.put(chatId, null);
+            AdminService.changeAdminStatus(chatId, AdminStatus.SEND_ADS);
             sendMessage.setText("🖼️ Reklamangizni jo'nating.");
 
         } else if (text.equals(_DISCOUNT_)) {
@@ -90,12 +112,16 @@ public class AdminController {
             sendMessage.setText("Chegirma rasmini yoki nomini yoki rasmi bilan nomini jo'nating");
             MY_BOT.sendMsg(sendMessage);
         } else if (text.equals(_CATEGORIES_)) {
+            MY_BOT.sendMsg(sendMessage);
+        }else if (text.equals(_DISCOUNT_)){
 
-        } else if (text.equals(_PRODUCTS_)) {
+        }else if (text.equals(_CATEGORIES_)){
+
+        }else if (text.equals(_PRODUCTS_)){
 
         } else if (text.equals(_ORDER_LIST_)) {
 
-        } else if (text.equals(_SHOW_MESSAGES_)) {
+        }else if (text.equals(_SHOW_MESSAGES_)){
 
         }else if (AdminService.checkAdminStatus(chatId, AdminStatus.ADD_DISCOUNT)) {
             boolean isDiscountExist = false;
@@ -195,6 +221,9 @@ public class AdminController {
                     break;
                 }
             }
+        }else if (AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.SEND_ADS)){
+            sendMessage.setText(text+"\n\n Shu e'lonni barcha foydalanuvchilarga yurborasizmi?");
+            sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmationButtons());
         }
 
     }
@@ -229,5 +258,11 @@ public class AdminController {
                 }
             }
         }
+            if (data.equals(InlineKeyboardButtonConstants.YES_CALL) && AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.SEND_ADS)){
+                Advertisement adToBeSent = WorkWithDatabase.getAdFromDB(String.valueOf(message.getChatId()));
+                AdminService.sendAdsToAllCustomers(adToBeSent.getPhoto(), adToBeSent.getCaption());
+                DeleteMessage deleteMessage = new DeleteMessage(String.valueOf(message.getChatId()), message.getMessageId());
+                MY_BOT.sendMsg(deleteMessage);
+            }
     }
 }

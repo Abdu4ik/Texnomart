@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 public class Category {
     private Integer id;
     private String name;
-    private Category parent_id;
+    private Integer parent_id;
     private boolean is_deleted;
 }

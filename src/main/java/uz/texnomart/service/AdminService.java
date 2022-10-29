@@ -1,33 +1,24 @@
 package uz.texnomart.service;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import uz.texnomart.container.Container;
 import uz.texnomart.entity.TelegramUser;
 import uz.texnomart.enums.AdminStatus;
 import uz.texnomart.enums.UserRoles;
-
-import com.itextpdf.io.image.ImageData;
-import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
-import uz.texnomart.entity.TelegramUser;
-import uz.texnomart.enums.UserRoles;
 import com.itextpdf.layout.Document;
-
 import java.awt.*;
 import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import static uz.texnomart.container.Container.*;
 import java.io.IOException;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-
 import static uz.texnomart.container.Container.*;
 
 public class AdminService {
@@ -35,9 +26,10 @@ public class AdminService {
     public static void showUsersAsPDF() {
 
         List<TelegramUser> telegramUserList = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            Statement statement = connection.createStatement()
+        ) {
 
-            Statement statement = connection.createStatement();
             String query = """
                               select * from customer where user_role = 'USER'::user_roles order by id;
                     """;
@@ -87,13 +79,12 @@ public class AdminService {
 
     public static File writerPdf(List<TelegramUser> telegramUserList) {
         final String BASE_FOLDER = "src/main/resources/files/documents";
-
         File file = new File(BASE_FOLDER, "customer.pdf");
         file.getParentFile().mkdirs();
 
         try (PdfWriter pdfWriter = new PdfWriter(file);
              PdfDocument pdfDocument = new PdfDocument(pdfWriter);
-             Document document = new Document(pdfDocument);
+             Document document = new Document(pdfDocument)
         ) {
             pdfDocument.addNewPage();
 
@@ -105,7 +96,7 @@ public class AdminService {
             float[] columnWidths = {50f, 150f, 100f, 30f};
             Table table = new Table(columnWidths);
 
-            String[] columns = {"Chat Id ", "Full name", "Phone Number ", "User Role"};
+            String[] columns = {"№", "Chat Id ", "Full name", "Phone Number ", "User Role"};
 
             for (int i = 0; i < columns.length; i++) {
                 table.addCell(columns[i]);
@@ -131,6 +122,55 @@ public class AdminService {
         }
         return file;// Todo najim to'gola man hozir pdf faylni create qildim sila buni send file qilib resoursedan ochirib yuboringla xaymi
     }
+
+    public static void sendAdsToAllCustomers(String photo, String caption){
+        SendPhoto sendPhoto = new SendPhoto();
+//        select * from customer where user_role = 'USER'::user_roles order by id;
+
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()
+        ) {
+
+            String query = """
+                              select chat_id from customer where user_role = 'USER'::user_roles;
+                    """;
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                String chat_id = resultSet.getString("chat_id");
+                sendPhoto.setChatId(chat_id);
+                sendPhoto.setPhoto(new InputFile(photo));
+                MY_BOT.sendMsg(sendPhoto);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String editProductName(String  name, Integer product_id) {
+        // bu metodga product id va productni nameni berasan va bu bazadan almashtirib qoyadi
+        String response = "";
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+                String query = """
+                      update product set name=? where id=?;
+                        """;
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, name);
+            preparedStatement.setInt(2, product_id);
+            if(preparedStatement.executeUpdate()==1){
+                response="Successfully edit product name";
+            }
+
+        } catch (SQLException e) {
+            response = "Productni edit qilishda exceptionga tushdi bu ";
+        }
+        return response;
+    }
+
 }
 
 

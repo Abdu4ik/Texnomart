@@ -119,6 +119,7 @@ public class AdminController {
             adminMap.put(chatId, null);
             AdminService.changeAdminStatus(chatId, AdminStatus.SEND_ADS);
             sendMessage.setText("🖼️ Reklamangizni jo'nating.");
+            MY_BOT.sendMsg(sendMessage);
 
         } else if (text.equals(_DISCOUNT_)) {
             AdminService.changeAdminStatus(chatId, AdminStatus.ADD_DISCOUNT);

@@ -24,7 +24,7 @@ public interface KeyboardButtonConstants {
     String _EDIT_ADMIN_ = "Admin ➕ / ➖";
     String _SHOW_MESSAGES_ = "✉ Xabarlarni ko'rish";
     String _PRODUCTS_ = "Mahsulotlar";
-    String _DISCOUNT_ = "Mahsulotlarga chegirma..."; // O'zbekchasiga qanaqa bo'ladi?
+    String _DISCOUNT_ = "Mahsulotlarga chegirma e'lon qilish"; // O'zbekchasiga qanaqa bo'ladi?
     String _SHOW_USERS_ =  "Foydalanuvchilar ro'yxati";
     String _SEND_ADS_ = "Reklama jo'natish";
     String _CATEGORIES_ = "Kategoriyalar";

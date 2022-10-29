@@ -1,5 +1,6 @@
 package uz.texnomart.db;
 
+import uz.texnomart.entity.Discount;
 import uz.texnomart.entity.TelegramUser;
 
 import java.sql.*;
@@ -39,5 +40,9 @@ public class WorkWithDatabase {
             e.printStackTrace();
         }
         return true;
+    }
+
+    public static void addDiscount(Discount discount) {
+
     }
 }

@@ -53,6 +53,7 @@ public class KeyboardButtonUtil {
         ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup(rowList);
         markup.setResizeKeyboard(true);
         markup.setSelective(true);
+        markup.setOneTimeKeyboard(true);
         return markup;
     }
 

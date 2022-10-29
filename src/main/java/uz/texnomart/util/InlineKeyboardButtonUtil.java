@@ -43,9 +43,9 @@ public class InlineKeyboardButtonUtil {
         return getMarkup(button);
     }
 
-    public static ReplyKeyboard getConfirmationButtons(String id, String phoneId) {
-        return getMarkup(getButton(YES, YES_CALL+"/"+id+"/"+phoneId),
-                getButton(NO, NO_CALL+"/"+id+"/"+phoneId));
+    public static ReplyKeyboard getConfirmationButtons() {
+        return getMarkup(getButton(YES, YES_CALL),
+                getButton(NO, NO_CALL));
     }
 
     public static InlineKeyboardMarkup getEditMenu() {

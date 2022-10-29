@@ -1,6 +1,7 @@
 package uz.texnomart.container;
 
 import uz.texnomart.bot.MyBot;
+import uz.texnomart.entity.Discount;
 import uz.texnomart.enums.AdminStatus;
 
 import java.util.ArrayList;
@@ -28,4 +29,7 @@ public class Container {
     // resourses folder path
 
     public static final String BASE_FOLDER = "src/main/resources/files/documents";
+
+    //vaqtincha(tablega yozib bolguncha) discountlarni saqlash uchun list
+    public static List<Discount> discountList = new ArrayList<>();
 }

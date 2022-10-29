@@ -13,11 +13,12 @@ import java.time.LocalTime;
 @NoArgsConstructor
 @Data
 public class Discount {
-    private Integer id;
+    //private Integer id; kerakmas, discountni tablega yozib qoyish uchun qaysi admin(chatId) kiritganligi kerak
+    private String chatId;
     private Integer discount_percentage;
     private String  name;
-    private LocalDateTime  start_time;
-    private LocalDateTime  end_time;
+    private String  start_time;
+    private String  end_time;
     private String photo_file_id;
 
 }

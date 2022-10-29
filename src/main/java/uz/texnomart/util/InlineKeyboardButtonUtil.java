@@ -61,25 +61,58 @@ public class InlineKeyboardButtonUtil {
     }
 
     public static InlineKeyboardMarkup getCategoryButtonsForUser(List<Category> categories) {
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> list = new ArrayList<>();
-        InlineKeyboardButton button;
-        Category category;
-        List<InlineKeyboardButton> buttons = new ArrayList<>();
-        if (!categories.isEmpty()) {
-            for (Category value : categories) {
-                category = value;
-                button = new InlineKeyboardButton();
-                button.setText(category.getName());
-                button.setCallbackData(category.getName());
-                buttons.add(button);
-                if (buttons.size() > 1 && buttons.size() % 2 != 0) {
-                    list.add(buttons);
-                    buttons = null;
-                }
+//        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+//        List<List<InlineKeyboardButton>> list = new ArrayList<>();
+//        InlineKeyboardButton button;
+//        Category category;
+//        List<InlineKeyboardButton> buttons = new ArrayList<>();
+//        if (!categories.isEmpty()) {
+//            for (Category value : categories) {
+//                category = value;
+//                button = new InlineKeyboardButton();
+//                button.setText(category.getName());
+//                button.setCallbackData(category.getName());
+//                buttons.add(button);
+//                if (buttons.size() > 1 && buttons.size() % 2 != 0) {
+//                    list.add(buttons);
+//                    buttons = null;
+//                }
+//            }
+//        }
+//        markup.setKeyboard(list);
+        List<InlineKeyboardButton> inlineKeyboardButtonList = new ArrayList<>();
+
+        if (categories.isEmpty()) {
+            return null;
+        }
+
+        for (Category category : categories) {
+
+            InlineKeyboardButton button = getButton(category.getName(), category.getName()+"/"+category.getId()); // callBackQuery siga categoriya nomi va id sini bervoryapman
+            inlineKeyboardButtonList.add(button);
+        }
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        List<InlineKeyboardButton> row3 = new ArrayList<>();
+        List<InlineKeyboardButton> row4 = new ArrayList<>();
+        List<InlineKeyboardButton> row5 = new ArrayList<>();
+        for (int i = 0; i < inlineKeyboardButtonList.size(); i++) {
+            if (i%5==0){
+                row1.add(inlineKeyboardButtonList.get(i));
+            }else if (i%5==1){
+                row2.add(inlineKeyboardButtonList.get(i));
+            }else if (i%5==2){
+                row3.add(inlineKeyboardButtonList.get(i));
+            }else if (i%5==3){
+                row4.add(inlineKeyboardButtonList.get(i));
+            }else {
+                row5.add(inlineKeyboardButtonList.get(i));
             }
         }
-        markup.setKeyboard(list);
-        return markup;
+
+        return getMarkup(row1,row2,row3,row4,row5);
     }
+
+
 }

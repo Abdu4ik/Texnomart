@@ -21,7 +21,7 @@ public class AdminService {
         ) {
 
             String query = """
-                              select * from customer where user_role = 'USER'::user_roles order by chat_id;
+                              select * from customer;
                     """;
             ResultSet resultSet = statement.executeQuery(query);
 

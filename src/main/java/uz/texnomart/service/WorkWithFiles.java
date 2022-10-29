@@ -22,7 +22,7 @@ public class WorkWithFiles {
 
     public static void writerPdf(List<TelegramUser> telegramUserList) {
         final String BASE_FOLDER = "src/main/resources/files/documents";
-        File file = new File(BASE_FOLDER, "customer.pdf");
+        File file = new File(BASE_FOLDER, "Foydalanuvchilar rõyxati.pdf");
         file.getParentFile().mkdirs();
 
         try (PdfWriter pdfWriter = new PdfWriter(file);
@@ -36,13 +36,13 @@ public class WorkWithFiles {
 
             document.add(paragraph);
 
-            float[] columnWidths = {12f, 50f, 150f, 100f};
+            float[] columnWidths = {12f, 50f, 150f, 100f, 80f};
             Table table = new Table(columnWidths);
 
-            String [] columns = {"T/R ", "Chat Id ", "Full name", "Phone Number "};
+            String [] columns = {"T/R ", "Chat Id ", "Full Name", "Phone Number", "User Role"};
 
-            for (int i = 0; i < columns.length; i++) {
-                table.addCell(columns[i]);
+            for (String column : columns) {
+                table.addCell(column);
             }
             int number = 0;
             for (TelegramUser user : telegramUserList) {
@@ -51,6 +51,7 @@ public class WorkWithFiles {
                 table.addCell(user.getChatId());
                 table.addCell(user.getFullName());
                 table.addCell(user.getPhoneNumber());
+                table.addCell(String.valueOf(user.getUserRoles()));
             }
 
             document.add(table);

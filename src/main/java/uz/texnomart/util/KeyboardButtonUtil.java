@@ -18,7 +18,7 @@ public class KeyboardButtonUtil {
 
     public static ReplyKeyboard getAdminMenu() {
         return getMarkup(getRowList(
-                getRow(getButton(_PRODUCTS_), getButton(_EDIT_ADMIN_)),
+                getRow(getButton(_PRODUCTS_), getButton(_ADMIN_CRUD_)),
                 getRow(getButton(_SHOW_MESSAGES_), getButton(_DISCOUNT_)),
                 getRow(getButton(_SHOW_USERS_), getButton(_SEND_ADS_)),
                 getRow(getButton(_CATEGORIES_), getButton(_ORDER_LIST_))
@@ -33,7 +33,8 @@ public class KeyboardButtonUtil {
     public static ReplyKeyboard getUserMenu() {
         return getMarkup(getRowList(
                 getRow(getButton(CATEGORIES), getButton(MESSAGE_ADMIN)),
-                getRow(getButton(SHOW_BASKET), getButton(DISCOUNTED_PRODUCTS))
+                getRow(getButton(SHOW_BASKET), getButton(DISCOUNTED_PRODUCTS)),
+                getRow(getButton(FILTER))
                 ));
     }
 
@@ -70,6 +71,13 @@ public class KeyboardButtonUtil {
         return getMarkup(getRowList(getRow(getButton(_ADD_PRODUCT_),
                 getButton(_VIEW_PRODUCT_)),getRow(getButton(_EDIT_PRODUCT_),
                 getButton(_DELETE_PRODUCT_)),getRow(getButton(KeyboardButtonConstants._BACK_TO_MENU_))));
+    }
+
+    public static ReplyKeyboard getEditAdminMenu() {
+        return getMarkup(getRowList(
+                getRow(getButton(_ADD_ADMIN_), getButton(_REMOVE_ADMIN_)),
+                getRow(getButton(BACK))
+        ));
     }
 
 

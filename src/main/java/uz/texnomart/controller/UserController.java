@@ -10,6 +10,8 @@ import uz.texnomart.db.WorkWithDatabase;
 import uz.texnomart.entity.TelegramUser;
 import uz.texnomart.enums.UserRoles;
 import uz.texnomart.service.AdminService;
+import uz.texnomart.util.InlineKeyboardButtonUtil;
+import uz.texnomart.util.KeyboardButtonConstants;
 import uz.texnomart.util.KeyboardButtonUtil;
 
 
@@ -42,7 +44,7 @@ public class UserController {
         if ("/start".equals(text)) {
 
             if (WorkWithDatabase.doesExist(chatId)){
-                sendMessage.setText("Hurmatli mijoz xush kelibsiz ... 🎉🎉");
+                sendMessage.setText("Hurmatli mijoz xush kelibsiz ... 🎉");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
                 Container.MY_BOT.sendMsg(sendMessage);
             } else if (!WorkWithDatabase.doesExist(chatId)) {
@@ -51,6 +53,10 @@ public class UserController {
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
                 Container.MY_BOT.sendMsg(sendMessage);
             }
+        } else if (text.equals(KeyboardButtonConstants.CATEGORIES)){
+            sendMessage.setText("Mahsulot turlarini tanlang : ");
+            sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getCategoryButtonsForUser(WorkWithDatabase.parentCategoryList()));
+            Container.MY_BOT.sendMsg(sendMessage);
         } else {
             sendMessage.setText("Nimadir xato ketti, qayta urunib ko'ring\nyoki /help yoki /start ni bosing");
             Container.MY_BOT.sendMsg(sendMessage);
@@ -69,7 +75,7 @@ public class UserController {
                      Siz Bizning botimizda yangi ekansiz
                       Biz Sizni Ro'yhatga olib qoydik!!!\s
                      Hush kelibsiz ....""");
-             WorkWithDatabase.addUsers(new TelegramUser(chatId,user.getFirstName()+user.getLastName(),contact.getPhoneNumber(), UserRoles.USER));
+             WorkWithDatabase.addUsers(new TelegramUser(chatId,user.getFirstName()+" "+user.getLastName(),contact.getPhoneNumber(), UserRoles.USER));
              sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
              Container.MY_BOT.sendMsg(sendMessage);
 

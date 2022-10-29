@@ -13,4 +13,9 @@ public class Category {
     private String name;
     private Integer parent_id;
     private boolean is_deleted;
+
+    public Category(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }

@@ -21,7 +21,7 @@ public interface KeyboardButtonConstants {
     String _DELETE_PRODUCT_ = "❌ Mahsulot o'chirish";
     String _BACK_TO_MENU_ = "🔙 Orqaga";
 
-    String _EDIT_ADMIN_ = "Admin ➕ / ➖";
+    String _ADMIN_CRUD_ = "Admin ➕ / ➖";
     String _SHOW_MESSAGES_ = "✉ Xabarlarni ko'rish";
     String _PRODUCTS_ = "Mahsulotlar";
     String _DISCOUNT_ = "🧮 Mahsulotlarga chegirma e'lon qilish"; // O'zbekchasiga qanaqa bo'ladi?
@@ -29,6 +29,9 @@ public interface KeyboardButtonConstants {
     String _SEND_ADS_ = "📨 Reklama jo'natish";
     String _CATEGORIES_ = "📚 Kategoriyalar";
     String _ORDER_LIST_ = "📃 Buyurtmalar ro'yxati";
+
+    String _ADD_ADMIN_ = "➕ Admin qo'shish";
+    String _REMOVE_ADMIN_ = "➖ Admin o'chirish";
 
     String PHONE_NUMBER = "📲 Telefon raqamini jo'natish";
 

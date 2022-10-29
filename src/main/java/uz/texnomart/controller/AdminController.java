@@ -22,7 +22,9 @@ import uz.texnomart.util.InlineKeyboardButtonConstants;
 import uz.texnomart.util.InlineKeyboardButtonUtil;
 import uz.texnomart.util.KeyboardButtonConstants;
 import uz.texnomart.util.InlineKeyboardButtonUtil;
+
 import static uz.texnomart.util.InlineKeyboardButtonConstants.*;
+
 import uz.texnomart.util.KeyboardButtonUtil;
 
 import java.io.File;
@@ -49,10 +51,10 @@ public class AdminController {
         sendPhoto.setChatId(message.getChatId());
         String photo = photoSizeList.get(photoSizeList.size() - 1).getFileId();
         String caption = message.getCaption();
-        if (AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.SEND_ADS)){
+        if (AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.SEND_ADS)) {
             WorkWithDatabase.addAdvert(new Advertisement(caption, photo, String.valueOf(message.getChatId())));
             sendPhoto.setPhoto(new InputFile(photo));
-            sendPhoto.setCaption(caption+"\n\n Shu e'lonni barcha foydalanuvchilarga yurborasizmi?");
+            sendPhoto.setCaption(caption + "\n\n Shu e'lonni barcha foydalanuvchilarga yurborasizmi?");
             sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmationButtons());
             MY_BOT.sendMsg(sendPhoto);
         }
@@ -65,7 +67,7 @@ public class AdminController {
         if (AdminService.checkAdminStatus(chatId, AdminStatus.ADD_DISCOUNT)) {
             boolean isDiscountExist = false;
             for (Discount discount : Container.discountList) {
-                if (discount.getChatId().equals(chatId)){
+                if (discount.getChatId().equals(chatId)) {
                     discount.setChatId(chatId);
                     discount.setName(discountName);
                     discount.setPhoto_file_id(fileId);
@@ -91,6 +93,7 @@ public class AdminController {
     private static void handleText(Message message) {
         String text = message.getText();
         String chatId = String.valueOf(message.getChatId());
+        DeleteMessage deleteMessage = new DeleteMessage(chatId, message.getMessageId());
         SendDocument sendDocument = new SendDocument();
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
@@ -100,22 +103,45 @@ public class AdminController {
             sendMessage.setText("Assalom alaykum " + message.getFrom().getFirstName() + "!\nTexnomart botiga xush kelibsiz!");
             sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
             MY_BOT.sendMsg(sendMessage);
+        } else if ((AdminService.checkAdminStatus(chatId, AdminStatus.ADMIN_CRUD) ||
+                AdminService.checkAdminStatus(chatId, AdminStatus.REMOVE_ADMIN) ||
+                AdminService.checkAdminStatus(chatId, AdminStatus.ADD_ADMIN)
+        ) && text.equals(BACK)) {
+            adminMap.put(chatId, null);
+            sendMessage.setText("Asosiy menyu:");
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
+            MY_BOT.sendMsg(sendMessage);
+        } else if (AdminService.checkAdminStatus(chatId, AdminStatus.REMOVE_ADMIN)) {
+            sendMessage.setText(WorkWithDatabase.takeAdminPrivilege(text));
+            MY_BOT.sendMsg(sendMessage);
+        } else if (AdminService.checkAdminStatus(chatId, AdminStatus.ADD_ADMIN)) {
+            sendMessage.setText(WorkWithDatabase.grantAdminPrivilege(text));
+            MY_BOT.sendMsg(sendMessage);
+        } else if (text.equals(_ADD_ADMIN_)) {
+            AdminService.changeAdminStatus(chatId, AdminStatus.ADD_ADMIN);
+            sendMessage.setText("Yuqoridagi fayldan👆 foydalanib adminlik rolini\nbermoqchi bo'lgan foydalanuvchining chat ID sini kiriting.");
+            MY_BOT.sendMsg(sendMessage);
+        } else if (text.equals(_REMOVE_ADMIN_)) {
+            AdminService.changeAdminStatus(chatId, AdminStatus.REMOVE_ADMIN);
+            sendMessage.setText("Yuqoridagi fayldan👆 foydalanib adminlik rolidan\nmahrum qilmoqchi bo'lgan foydalanuvchining chat ID sini kiriting.");
+            MY_BOT.sendMsg(sendMessage);
         } else if (text.equals(_SHOW_USERS_)) {
             AdminService.changeAdminStatus(chatId, AdminStatus.SHOW_USERS);
             AdminService.showUsersAsPDF();
-            File file = new File(Container.BASE_FOLDER, "customer.pdf");
+            File file = new File(Container.BASE_FOLDER, "Foydalanuvchilar rõyxati.pdf");
             sendDocument.setDocument(new InputFile(file));
             MY_BOT.sendMsg(sendDocument);
             file.delete();
-        }else if (text.equals(_EDIT_ADMIN_)){
-            AdminService.changeAdminStatus(chatId, AdminStatus.EDIT_ADMIN); // admin statusni Edit qilishga o'tkazib qo'yadi
+        } else if (text.equals(_ADMIN_CRUD_)) {
+            AdminService.changeAdminStatus(chatId, AdminStatus.ADMIN_CRUD); // admin statusni Edit qilishga o'tkazib qo'yadi
             AdminService.showUsersAsPDF();
-            File file = new File(Container.BASE_FOLDER, "customer.pdf");
+            File file = new File(Container.BASE_FOLDER, "Foydalanuvchilar rõyxati.pdf");
             sendDocument.setDocument(new InputFile(file));
-            sendDocument.setCaption("Admin qilmoqchi bo'lgan foydalanuvchining ID sini kiriting.");
+            sendDocument.setReplyMarkup(KeyboardButtonUtil.getEditAdminMenu());
+            sendDocument.setCaption("Admin qo'shish yoki adminlik huquqini olib qo'yish uchun sizga yuqoridagi ma'lumot kerak bo'ladi.");
             MY_BOT.sendMsg(sendDocument);
-            file.delete();  // fileni jo'natgandan keyin darhol bazadan o'chirib yuboradi
-        }else if (text.equals(_SEND_ADS_)){
+            file.delete();
+        } else if (text.equals(_SEND_ADS_)) {
             adminMap.put(chatId, null);
             AdminService.changeAdminStatus(chatId, AdminStatus.SEND_ADS);
             sendMessage.setText("🖼️ Reklamangizni jo'nating.");
@@ -126,21 +152,23 @@ public class AdminController {
             sendMessage.setText("Chegirma rasmini yoki nomini yoki rasmi bilan nomini jo'nating");
             MY_BOT.sendMsg(sendMessage);
         } else if (text.equals(_CATEGORIES_)) {
-
-        }else if (text.equals(_PRODUCTS_)){
+            sendMessage.setText("Mavjud kategoriyalar");
+            sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getCategoryButtonsForUser(WorkWithDatabase.parentCategoryList()));
+            MY_BOT.sendMsg(sendMessage);
+        } else if (text.equals(_PRODUCTS_)) {
 
         } else if (text.equals(_ORDER_LIST_)) {
 
-        }else if (text.equals(_SHOW_MESSAGES_)){
+        } else if (text.equals(_SHOW_MESSAGES_)) {
 
-        }else if (AdminService.checkAdminStatus(chatId, AdminStatus.ADD_DISCOUNT)) {
+        } else if (AdminService.checkAdminStatus(chatId, AdminStatus.ADD_DISCOUNT)) {
             boolean isDiscountExist = false;
             for (Discount discount : Container.discountList) {
-                if (discount.getChatId().equals(chatId)){
+                if (discount.getChatId().equals(chatId)) {
                     discount.setChatId(chatId);
                     discount.setName(text);
-                   isDiscountExist = true;
-                   break;
+                    isDiscountExist = true;
+                    break;
                 }
             }
             if (!isDiscountExist)
@@ -153,8 +181,10 @@ public class AdminController {
             text = text.replace("%", "");
             if (text.length() == 2 && text.matches("\\d+")) {
                 for (Discount discount : Container.discountList) {
-                    if (discount.getChatId().equals(chatId))
-                    {discount.setDiscount_percentage(Integer.valueOf(text));break;}
+                    if (discount.getChatId().equals(chatId)) {
+                        discount.setDiscount_percentage(Integer.valueOf(text));
+                        break;
+                    }
                 }
                 sendMessage.setText("Chegirmani boshlanish va yakunlanish sanalarini yil-oy-kun formatida," +
                         " quyidagi ko'rinishda kiriting\n" +
@@ -184,7 +214,7 @@ public class AdminController {
                 MY_BOT.sendMsg(sendMessage);
                 return;
             }
-            if (!localStartDate.isBefore(localEndDate)||!LocalDate.now().isBefore(localStartDate)) {
+            if (!localStartDate.isBefore(localEndDate) || !LocalDate.now().isBefore(localStartDate)) {
                 sendMessage.setText("❌ Sana formati xato kiritildi, Qayta kiriting!");
                 MY_BOT.sendMsg(sendMessage);
                 return;
@@ -195,15 +225,15 @@ public class AdminController {
                     discount.setStart_time(date[0]);
                     discount.setEnd_time(date[1]);
 
-                    if (discount.getPhoto_file_id()!=null)
-                    {
+                    if (discount.getPhoto_file_id() != null) {
                         SendPhoto sendPhoto = new SendPhoto();
                         sendPhoto.setChatId(discount.getChatId());
                         sendPhoto.setPhoto(new InputFile(discount.getPhoto_file_id()));
                         String photoCaption = "";
 
-                        if (discount.getName()!=null){
-                            photoCaption = photoCaption.concat(discount.getName());}
+                        if (discount.getName() != null) {
+                            photoCaption = photoCaption.concat(discount.getName());
+                        }
 
                         photoCaption = "Chegirma foizi: " +
                                 discount.getDiscount_percentage() +
@@ -214,9 +244,9 @@ public class AdminController {
 
                         sendPhoto.setCaption(photoCaption);
                         sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmationButtons());
-                        AdminService.changeAdminStatus(chatId,AdminStatus.DISCOUNT_CONFIRM);
+                        AdminService.changeAdminStatus(chatId, AdminStatus.DISCOUNT_CONFIRM);
                         MY_BOT.sendMsg(sendPhoto);
-                    }else {
+                    } else {
                         String discountText = discount.getName() + "\n\nChegirma foizi: " +
                                 discount.getDiscount_percentage() +
                                 "\n\nBoshlanish vaqti: " +
@@ -225,14 +255,14 @@ public class AdminController {
                                 discount.getEnd_time();
                         sendMessage.setText(discountText);
                         sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmationButtons());
-                        AdminService.changeAdminStatus(chatId,AdminStatus.DISCOUNT_CONFIRM);
+                        AdminService.changeAdminStatus(chatId, AdminStatus.DISCOUNT_CONFIRM);
                         MY_BOT.sendMsg(sendMessage);
                     }
                     break;
                 }
             }
-        }else if (AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.SEND_ADS)){
-            sendMessage.setText(text+"\n\n Shu e'lonni barcha foydalanuvchilarga yurborasizmi?");
+        } else if (AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.SEND_ADS)) {
+            sendMessage.setText(text + "\n\n Shu e'lonni barcha foydalanuvchilarga yurborasizmi?");
             sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmationButtons());
         }
 
@@ -244,22 +274,21 @@ public class AdminController {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
 
-        DeleteMessage deleteMessage = new DeleteMessage(chatId,message.getMessageId());
+        DeleteMessage deleteMessage = new DeleteMessage(chatId, message.getMessageId());
 
-        if (AdminService.checkAdminStatus(chatId,AdminStatus.DISCOUNT_CONFIRM)&&data.equals(YES_CALL)){
+        if (AdminService.checkAdminStatus(chatId, AdminStatus.DISCOUNT_CONFIRM) && data.equals(YES_CALL)) {
             for (Discount discount : Container.discountList) {
-                if (discount.getChatId().equals(chatId)){
-                    WorkWithDatabase.addDiscount(new Discount(chatId,discount.getDiscount_percentage(),discount.getName(),discount.getStart_time(),discount.getEnd_time(),discount.getPhoto_file_id()));
+                if (discount.getChatId().equals(chatId)) {
+                    WorkWithDatabase.addDiscount(new Discount(chatId, discount.getDiscount_percentage(), discount.getName(), discount.getStart_time(), discount.getEnd_time(), discount.getPhoto_file_id()));
                     sendMessage.setText("Chegirma muvaffaqiyatli saqlandi");
                     MY_BOT.sendMsg(sendMessage);
                     Container.discountList.remove(discount);
                     break;
                 }
             }
-        }
-        else if (AdminService.checkAdminStatus(chatId,AdminStatus.DISCOUNT_CONFIRM)&&data.equals(NO_CALL)){
+        } else if (AdminService.checkAdminStatus(chatId, AdminStatus.DISCOUNT_CONFIRM) && data.equals(NO_CALL)) {
             for (Discount discount : Container.discountList) {
-                if (discount.getChatId().equals(chatId)){
+                if (discount.getChatId().equals(chatId)) {
                     sendMessage.setText("Chegirma saqlanmadi");
                     MY_BOT.sendMsg(sendMessage);
                     Container.discountList.remove(discount);
@@ -267,10 +296,12 @@ public class AdminController {
                 }
             }
         }
-            if (data.equals(InlineKeyboardButtonConstants.YES_CALL) && AdminService.checkAdminStatus(chatId, AdminStatus.SEND_ADS)){
-                Advertisement adToBeSent = WorkWithDatabase.getAdFromDB(chatId);
-                AdminService.sendAdsToAllCustomers(adToBeSent.getPhoto(), adToBeSent.getCaption());
-                MY_BOT.sendMsg(deleteMessage);
-            }
+        if (data.equals(InlineKeyboardButtonConstants.YES_CALL) && AdminService.checkAdminStatus(chatId, AdminStatus.SEND_ADS)) {
+            Advertisement adToBeSent = WorkWithDatabase.getAdFromDB(chatId);
+            AdminService.sendAdsToAllCustomers(adToBeSent.getPhoto(), adToBeSent.getCaption());
+            sendMessage.setText("Reklama barcha foydalanuvchilarga muvaffaqiyatli yuborildi! 🎉");
+            MY_BOT.sendMsg(sendMessage);
+            MY_BOT.sendMsg(deleteMessage);
+        }
     }
 }

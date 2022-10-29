@@ -79,7 +79,7 @@ public class WorkWithDatabase {
             String query = "SELECT id, caption, photo FROM advertisement where chatid = '" + chatId + "' order by id DESC";
 
             ResultSet resultSet = statement.executeQuery(query);
-            while (resultSet.next()) {
+            if (resultSet.next()){
                 String caption = resultSet.getString("caption");
                 String photo = resultSet.getString("photo");
                 return new Advertisement(caption, photo, chatId);
@@ -96,18 +96,15 @@ public class WorkWithDatabase {
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement statement = connection.createStatement()
         ) {
-
             String query = """
-                              select * from category where parent_id = null;
+                              select * from category where parent_id is null and is_deleted is false ;
                     """;
             ResultSet resultSet = statement.executeQuery(query);
 
             while (resultSet.next()) {
-                int id = resultSet.getInt(1);
+                int id = resultSet.getInt("id");
                 String name = resultSet.getString("name");
-                int parent_id = resultSet.getInt("parent_id");
-                boolean is_deleted = resultSet.getBoolean("is_deleted");
-                categoryList.add(new Category(id, name, parent_id, is_deleted));
+                categoryList.add(new Category(id, name));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -168,17 +165,12 @@ public class WorkWithDatabase {
                 fullname = fullname.trim();
                 phone_number = phone_number.trim();
 
-                String queryFirst = """
-                        select * from customer where id=?; 
-                        """;
+                String queryFirst = "select * from customer where id = ?;";
                 PreparedStatement preparedStatementFirst = connection.prepareStatement(queryFirst);
                 preparedStatementFirst.setString(1, chat_id);
                 ResultSet resultSet = preparedStatementFirst.executeQuery();
                 if (!resultSet.next()) {
-                    String query = """
-                            insert into customer(chat_id,fullname,phone_number)
-                            values(?,?,?);
-                            """;
+                    String query = "insert into customer(chat_id,fullname,phone_number) values(?,?,?)";
                     PreparedStatement preparedStatement = connection.prepareStatement(query);
                     preparedStatement.setString(1, chat_id);
                     preparedStatement.setString(2, fullname);
@@ -203,9 +195,7 @@ public class WorkWithDatabase {
             if (categoryId <= 0) {
                 System.out.println("bunday categoriya id bolmaydi ");
             } else {
-                String query = """
-                        select * from category where id=?;
-                         """;
+                String query = "select * from category where id = ?";
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
                 preparedStatement.setInt(1, categoryId);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -227,10 +217,7 @@ public class WorkWithDatabase {
                     || price <= 0 || photo_file_id.trim().isEmpty()) {
                 System.out.println("Kategoriya nomida xatolik mavjud ");
             } else if (getCategoryById(categoryId)) {
-                String query = """
-                        insert into product(name,category_id,price,photo_file_id)
-                        values(?,?,?,?);
-                        """;
+                String query = "insert into product(name,category_id,price,photo_file_id) values (?,?,?,?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
                 preparedStatement.setString(1, productName);
                 preparedStatement.setInt(2, categoryId);
@@ -263,18 +250,13 @@ public class WorkWithDatabase {
                 working_hours = working_hours.trim();
 
 
-                String queryFirst = """
-                        select * from shop_branches where name=? or location_url=?; 
-                        """;
+                String queryFirst = "select * from shop_branches where name = ? or location_url = ?";
                 PreparedStatement preparedStatement = connection.prepareStatement(queryFirst);
                 preparedStatement.setString(1, name);
                 preparedStatement.setString(2, location_url);
                 ResultSet resultSet = preparedStatement.executeQuery();
                 if (!resultSet.next()) {
-                    String queryTwo = """
-                            insert into shop_branches(location_url,name,working_hours)
-                            values(?,?,?);
-                            """;
+                    String queryTwo = "insert into shop_branches(location_url,name,working_hours) values(?,?,?)";
 
                     PreparedStatement preparedStatementTwo = connection.prepareStatement(queryTwo);
                     preparedStatementTwo.setString(1, location_url);
@@ -302,17 +284,12 @@ public class WorkWithDatabase {
         // qaysi mahsulot qaysi chegirmaga ega ekanligini aytb beradi
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
 
-            String queryFirst = """
-                    select * from discount_id where id=?; 
-                    """;
+            String queryFirst = "select * from discount_id where id=?";
             PreparedStatement preparedStatement = connection.prepareStatement(queryFirst);
             preparedStatement.setInt(1, discount_id);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-                String queryTwo = """
-                        insert into product_discount(product_id,discount_id)
-                        values(?,?);
-                        """;
+                String queryTwo = "insert into product_discount(product_id,discount_id) values(?,?)";
                 PreparedStatement preparedStatementTwo = connection.prepareStatement(queryTwo);
                 preparedStatementTwo.setInt(1, product_id);
                 preparedStatementTwo.setInt(2, discount_id);
@@ -342,10 +319,7 @@ public class WorkWithDatabase {
                 name = name.trim();
                 photo_file_id = photo_file_id.trim();
 
-                String query = """
-                        insert into discount(discount_percentage,name,start_time,end_time,photo_file_id)
-                        values(?,?,?,?,?);
-                        """;
+                String query = "insert into discount(discount_percentage,name,start_time,end_time,photo_file_id) values(?,?,?,?,?)";
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
                 preparedStatement.setInt(1, discount_percentage);
                 preparedStatement.setString(2, name);
@@ -370,9 +344,7 @@ public class WorkWithDatabase {
         // bu product  ichida product id  shu id ga ega bolgan product bormi yoqmi shuni korsatib beradi bu
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
             if (product_id > 0) {
-                String query = """
-                        select * from product where id=?;
-                         """;
+                String query = "select * from product where id = ?";
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
                 preparedStatement.setInt(1, product_id);
                 ResultSet resultSet = preparedStatement.executeQuery();
@@ -393,9 +365,7 @@ public class WorkWithDatabase {
             if (name.trim().isEmpty() || getProductById(product_id)) {
                 System.out.println("Xatolik bor ");
             }
-            String query = """
-                    update product set name=? where id=?;
-                      """;
+            String query = "update product set name=? where id = ?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, name);
             preparedStatement.setInt(2, product_id);
@@ -417,9 +387,7 @@ public class WorkWithDatabase {
             if (price < 0 || getProductById(product_id)) {
                 System.out.println("Xatolik bor ");
             }
-            String query = """
-                    update product set price=? where id=?;
-                      """;
+            String query = "update product set price=? where id=?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setDouble(1, price);
             preparedStatement.setInt(2, product_id);
@@ -441,9 +409,7 @@ public class WorkWithDatabase {
             if (photo_file_id.trim().isEmpty() || getProductById(product_id)) {
                 response = "Xatolik bor ";
             }
-            String query = """
-                    update product set photo_file_id=? where id=?;
-                      """;
+            String query = "update product set photo_file_id=? where id=?";
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             preparedStatement.setString(1, photo_file_id);
             preparedStatement.setInt(2, product_id);
@@ -486,5 +452,54 @@ public class WorkWithDatabase {
         return discounts;
     }
 
+    public static String takeAdminPrivilege(String chatId){
+        String response = "Some";
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()
+        ) {
+            Class.forName("org.postgresql.Driver");
+
+            String query = "SELECT user_role FROM customer where user_role = 'ADMIN'::user_roles and chat_id = '"+ chatId +"'";
+            ResultSet resultSet = statement.executeQuery(query);
+            if (resultSet.next()){
+                query = "UPDATE customer SET user_role = 'USER'::user_roles WHERE chat_id = '"+ chatId +"'";
+                statement.execute(query);
+                response = chatId +" chat ID li userdan Adminlik huquqi olindi.";
+            }else {
+                response = "Bu chat ID li admin mavjud emas!";
+            }
+
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+    public static String grantAdminPrivilege(String chatId){
+        String response = "";
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()
+        ) {
+            Class.forName("org.postgresql.Driver");
+
+            String query = "SELECT user_role FROM customer where user_role = 'USER'::user_roles and chat_id = '"+ chatId +"'";
+            ResultSet resultSet = statement.executeQuery(query);
+            if (resultSet.next()){
+                query = "UPDATE customer SET user_role = 'ADMIN'::user_roles WHERE chat_id = '"+ chatId +"'";
+                statement.execute(query);
+                response = chatId +" chat ID li userga Adminlik huquqi berildi.";
+            }else {
+                response = "Bu chat ID li user mavjud emas!";
+            }
+
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+
+        return response;
+    }
 
 }

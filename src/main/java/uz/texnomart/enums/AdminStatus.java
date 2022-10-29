@@ -3,7 +3,6 @@ package uz.texnomart.enums;
 public enum AdminStatus {
     SHOW_USERS,
     SEND_ADS,
-    EDIT_ADMIN,
     SHOW_MESSAGES,
     PRODUCTS,
     ADD_DISCOUNT,
@@ -12,4 +11,7 @@ public enum AdminStatus {
     DISCOUNT_CONFIRM,
     CATEGORIES,
     ORDER_LIST,
+    ADMIN_CRUD,
+    ADD_ADMIN,
+    REMOVE_ADMIN
 }

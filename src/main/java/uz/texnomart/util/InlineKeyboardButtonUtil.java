@@ -38,14 +38,14 @@ public class InlineKeyboardButtonUtil {
         return new InlineKeyboardMarkup(Arrays.asList(inlineKeyboardButtonList));
     }
 
-    public static InlineKeyboardMarkup getDeleteButton(String id) {
-        InlineKeyboardButton button = getButton(DELETE, DELETE_CALL+"/"+id);
+    public static InlineKeyboardMarkup getDeleteButton() {
+        InlineKeyboardButton button = getButton(DELETE, DELETE_CALL);
         return getMarkup(button);
     }
 
-    public static ReplyKeyboard getConfirmationButtons(String id, String phoneId) {
-        return getMarkup(getButton(YES, YES_CALL+"/"+id+"/"+phoneId),
-                getButton(NO, NO_CALL+"/"+id+"/"+phoneId));
+    public static ReplyKeyboard getConfirmationButtons() {
+        return getMarkup(getButton(YES, YES_CALL),
+                getButton(NO, NO_CALL));
     }
 
     public static InlineKeyboardMarkup getEditMenu() {

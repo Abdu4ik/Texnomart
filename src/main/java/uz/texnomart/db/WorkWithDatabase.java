@@ -456,4 +456,35 @@ public class WorkWithDatabase {
         }
         return response;
     }
+
+    public static List<Discount> getNotDeletedDiscounts(String chatId) {
+        List<Discount> discounts = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()
+        ) {
+            Class.forName("org.postgresql.Driver");
+
+            String query = "SELECT * FROM discount where is_deleted = false and chat_id = '"+ chatId +"'";
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()){
+                int id = resultSet.getInt(1);
+                int discount_percentage = resultSet.getInt("discount_percentage");
+                String name = resultSet.getString("name");
+                String created_at = resultSet.getString("created_at");
+                boolean is_deleted = resultSet.getBoolean("is_deleted");
+                String start_time = resultSet.getString("start_time");
+                String end_time = resultSet.getString("end_time");
+                String photo_file_id = resultSet.getString("photo_file_id");
+
+                discounts.add(new Discount(id, chatId, discount_percentage, name, start_time, end_time, photo_file_id));
+            }
+
+
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+        return discounts;
+    }
+
+
 }

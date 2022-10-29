@@ -5,20 +5,10 @@ import uz.texnomart.container.Container;
 import uz.texnomart.entity.TelegramUser;
 import uz.texnomart.enums.AdminStatus;
 import uz.texnomart.enums.UserRoles;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.properties.TextAlignment;
-import com.itextpdf.layout.Document;
-import java.awt.*;
-import java.io.File;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import static uz.texnomart.container.Container.*;
-import java.io.IOException;
 import static uz.texnomart.container.Container.*;
 
 public class AdminService {
@@ -31,7 +21,7 @@ public class AdminService {
         ) {
 
             String query = """
-                              select * from customer where user_role = 'USER'::user_roles order by id;
+                              select * from customer where user_role = 'USER'::user_roles order by chat_id;
                     """;
             ResultSet resultSet = statement.executeQuery(query);
 
@@ -75,52 +65,6 @@ public class AdminService {
         if (!Container.adminMap.containsKey(chatId)){
             Container.adminMap.put(chatId, null);
         }
-    }
-
-    public static File writerPdf(List<TelegramUser> telegramUserList) {
-        final String BASE_FOLDER = "src/main/resources/files/documents";
-        File file = new File(BASE_FOLDER, "customer.pdf");
-        file.getParentFile().mkdirs();
-
-        try (PdfWriter pdfWriter = new PdfWriter(file);
-             PdfDocument pdfDocument = new PdfDocument(pdfWriter);
-             Document document = new Document(pdfDocument)
-        ) {
-            pdfDocument.addNewPage();
-
-            Paragraph paragraph = new Paragraph("People");
-            paragraph.setTextAlignment(TextAlignment.CENTER);
-
-            document.add(paragraph);
-
-            float[] columnWidths = {50f, 150f, 100f, 30f};
-            Table table = new Table(columnWidths);
-
-            String[] columns = {"№", "Chat Id ", "Full name", "Phone Number ", "User Role"};
-
-            for (int i = 0; i < columns.length; i++) {
-                table.addCell(columns[i]);
-            }
-            int number = 0;
-            for (TelegramUser user : telegramUserList) {
-
-                table.addCell(String.valueOf(++number));
-                table.addCell(user.getChatId());
-                table.addCell(user.getFullName());
-                table.addCell(user.getPhoneNumber());
-                table.addCell(String.valueOf(user.getUserRoles()));
-            }
-
-            document.add(table);
-            pdfDocument.close();
-            pdfWriter.close();
-            document.close();
-            Desktop.getDesktop().open(file);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return file;// Todo najim to'gola man hozir pdf faylni create qildim sila buni send file qilib resoursedan ochirib yuboringla xaymi
     }
 
     public static void sendAdsToAllCustomers(String photo, String caption){

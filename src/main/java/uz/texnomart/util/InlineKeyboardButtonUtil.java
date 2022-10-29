@@ -2,6 +2,8 @@ package uz.texnomart.util;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import uz.texnomart.entity.Category;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -56,5 +58,28 @@ public class InlineKeyboardButtonUtil {
     public static ReplyKeyboard getDeleteButton(Integer id) {
         return getMarkup(getButton(YES, YES_CALL+"/"+id),
                 getButton(NO, NO_CALL));
+    }
+
+    public static InlineKeyboardMarkup getCategoryButtonsForUser(List<Category> categories) {
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> list = new ArrayList<>();
+        InlineKeyboardButton button;
+        Category category;
+        List<InlineKeyboardButton> buttons = new ArrayList<>();
+        if (!categories.isEmpty()) {
+            for (Category value : categories) {
+                category = value;
+                button = new InlineKeyboardButton();
+                button.setText(category.getName());
+                button.setCallbackData(category.getName());
+                buttons.add(button);
+                if (buttons.size() > 1 && buttons.size() % 2 != 0) {
+                    list.add(buttons);
+                    buttons = null;
+                }
+            }
+        }
+        markup.setKeyboard(list);
+        return markup;
     }
 }

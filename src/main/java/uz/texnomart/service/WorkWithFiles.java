@@ -21,8 +21,8 @@ import static uz.texnomart.container.Container.*;
 public class WorkWithFiles {
 
     public static void writerPdf(List<TelegramUser> telegramUserList) {
-
-        File file = new File(Container.BASE_FOLDER, "customer.pdf");
+        final String BASE_FOLDER = "src/main/resources/files/documents";
+        File file = new File(BASE_FOLDER, "customer.pdf");
         file.getParentFile().mkdirs();
 
         try (PdfWriter pdfWriter = new PdfWriter(file);
@@ -31,15 +31,15 @@ public class WorkWithFiles {
         ) {
             pdfDocument.addNewPage();
 
-            Paragraph paragraph = new Paragraph("Customers");
+            Paragraph paragraph = new Paragraph("Foydalanuvchilar ro'yxati");
             paragraph.setTextAlignment(TextAlignment.CENTER);
 
             document.add(paragraph);
 
-            float[] columnWidths = {50f, 150f, 100f, 30f};
+            float[] columnWidths = {12f, 50f, 150f, 100f};
             Table table = new Table(columnWidths);
 
-            String[] columns = {"Chat Id ", "Full name", "Phone Number ", "User Role"};
+            String [] columns = {"T/R ", "Chat Id ", "Full name", "Phone Number "};
 
             for (int i = 0; i < columns.length; i++) {
                 table.addCell(columns[i]);
@@ -51,7 +51,6 @@ public class WorkWithFiles {
                 table.addCell(user.getChatId());
                 table.addCell(user.getFullName());
                 table.addCell(user.getPhoneNumber());
-                table.addCell(String.valueOf(user.getUserRoles()));
             }
 
             document.add(table);

@@ -824,6 +824,16 @@ public class WorkWithDatabase {
     }
 
     public static void deleteDiscount(int discountId) { // Todo
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()){
+            String query = "DELETE FROM discount WHERE id = "+ discountId;
+
+            statement.execute(query);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

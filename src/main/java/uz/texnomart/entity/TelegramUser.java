@@ -14,7 +14,7 @@ public class TelegramUser {
     private String chatId;
     private String fullName;
     private String phoneNumber;
-    private UserRoles userRoles;
+    private UserRoles userRoles ;
 
 
 }

@@ -302,6 +302,10 @@ public class AdminController {
             sendMessage.setText("Reklama barcha foydalanuvchilarga muvaffaqiyatli yuborildi! 🎉");
             MY_BOT.sendMsg(sendMessage);
             MY_BOT.sendMsg(deleteMessage);
+            AdminService.putAminsIntoMap(chatId);
+        }else if (data.equals(InlineKeyboardButtonConstants.YES_CALL) && AdminService.checkAdminStatus(chatId, AdminStatus.SEND_ADS)) {
+            MY_BOT.sendMsg(deleteMessage);
+            AdminService.putAminsIntoMap(chatId);
         }
     }
 }

@@ -1,5 +1,6 @@
 package uz.texnomart.db;
 
+import uz.texnomart.container.Container;
 import uz.texnomart.entity.Discount;
 import uz.texnomart.entity.Advertisement;
 import uz.texnomart.entity.Category;
@@ -19,8 +20,8 @@ public class WorkWithDatabase {
         ) {
             Class.forName("org.postgresql.Driver");
 
-            String query = "INSERT INTO users (chat_id, fullname, phone_number) " +
-                    "VALUES ('" + telegramUser.getChatId() + "', '" + telegramUser.getFullName() + "', '" + telegramUser.getPhoneNumber() + "')";
+            String query = "INSERT INTO customer (chat_id, fullname, phone_number) " +
+                    "VALUES ('" + telegramUser.getChatId() + "', '" + telegramUser.getFullName() + "', '+" + telegramUser.getPhoneNumber() + "')";
             statement.execute(query);
 
 
@@ -38,7 +39,7 @@ public class WorkWithDatabase {
             preparedStatement.setString(1, chatId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (resultSet.getString("chat_id") == null) {
+            if (!resultSet.next()) {
                 return false;
             }
 
@@ -453,7 +454,8 @@ public class WorkWithDatabase {
     }
 
     public static String takeAdminPrivilege(String chatId){
-        String response = "Some";
+        String response = "";
+        boolean success = false;
 
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement statement = connection.createStatement()
@@ -466,6 +468,7 @@ public class WorkWithDatabase {
                 query = "UPDATE customer SET user_role = 'USER'::user_roles WHERE chat_id = '"+ chatId +"'";
                 statement.execute(query);
                 response = chatId +" chat ID li userdan Adminlik huquqi olindi.";
+                success = true;
             }else {
                 response = "Bu chat ID li admin mavjud emas!";
             }
@@ -473,12 +476,15 @@ public class WorkWithDatabase {
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
-
+        if (success){
+            adminList.remove(chatId);
+        }
         return response;
     }
 
     public static String grantAdminPrivilege(String chatId){
         String response = "";
+        boolean success = false;
 
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement statement = connection.createStatement()
@@ -491,6 +497,7 @@ public class WorkWithDatabase {
                 query = "UPDATE customer SET user_role = 'ADMIN'::user_roles WHERE chat_id = '"+ chatId +"'";
                 statement.execute(query);
                 response = chatId +" chat ID li userga Adminlik huquqi berildi.";
+                success = true;
             }else {
                 response = "Bu chat ID li user mavjud emas!";
             }
@@ -498,7 +505,9 @@ public class WorkWithDatabase {
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
-
+        if (success){
+            adminList.add(chatId);
+        }
         return response;
     }
 

@@ -47,7 +47,7 @@ public class UserController {
                 sendMessage.setText("Hurmatli mijoz xush kelibsiz ... 🎉");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
                 Container.MY_BOT.sendMsg(sendMessage);
-            } else if (!WorkWithDatabase.doesExist(chatId)) {
+            } else {
 
                 sendMessage.setText("Assalamu Aleykum \n O'z kontaktingizni jo'natish tugmasi orqali jo'nating");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
@@ -64,18 +64,20 @@ public class UserController {
     }
 
 
-    private static void handleContact( User user ,Message message, Contact contact) {
+    private static void handleContact(User user, Message message, Contact contact) {
 
         String chatId = String.valueOf(message.getChatId());
 
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
+        user.getFirstName();
+        String fullname = user.getFirstName() +" "+ (user.getLastName() == null ? "" : user.getLastName());
 
              sendMessage.setText("""
-                     Siz Bizning botimizda yangi ekansiz
-                      Biz Sizni Ro'yhatga olib qoydik!!!\s
-                     Hush kelibsiz ....""");
-             WorkWithDatabase.addUsers(new TelegramUser(chatId,user.getFirstName()+" "+user.getLastName(),contact.getPhoneNumber(), UserRoles.USER));
+                     Siz Bizning botimizda yangi ekansiz.
+                     Biz Sizni Ro'yhatga olib qoydik.\s
+                     Xush kelibsiz!""");
+             WorkWithDatabase.addUsers(new TelegramUser(chatId,fullname.trim(),contact.getPhoneNumber(), UserRoles.USER));
              sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
              Container.MY_BOT.sendMsg(sendMessage);
 

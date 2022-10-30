@@ -11,9 +11,8 @@ import lombok.NoArgsConstructor;
 public class Product{
     private Integer id;
     private String name;
-    private Category category_id;
+    private Integer category_id;
     private Double price;
-    private Double rate;
     private Boolean is_deleted;
     private String photo_file_id;
     private String  color;

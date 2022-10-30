@@ -37,14 +37,16 @@ public class WorkWithDatabase {
     }
 
     public static void addAdvert(Advertisement ad) {
+
+        String query = "INSERT INTO advertisement (caption, photo, chatId) VALUES (?, ?, ?)";
+
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             Statement statement = connection.createStatement()
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
         ) {
             Class.forName("org.postgresql.Driver");
 
-            String query = "INSERT INTO advertisement (caption, photo, chatId) " +
-                    "VALUES ('" + ad.getCaption() + "', '" + ad.getPhoto() + "', '" + ad.getChatId() + "')";
-            statement.execute(query);
+
+
 
 
         } catch (ClassNotFoundException | SQLException e) {
@@ -407,35 +409,6 @@ public class WorkWithDatabase {
         return response;
     }
 
-    public static List<Discount> getNotDeletedDiscounts(String chatId) {
-        List<Discount> discounts = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-             Statement statement = connection.createStatement()
-        ) {
-            Class.forName("org.postgresql.Driver");
-
-            String query = "SELECT * FROM discount where is_deleted = false and chat_id = '"+ chatId +"'";
-            ResultSet resultSet = statement.executeQuery(query);
-            while (resultSet.next()){
-                int id = resultSet.getInt(1);
-                int discount_percentage = resultSet.getInt("discount_percentage");
-                String name = resultSet.getString("name");
-                String created_at = resultSet.getString("created_at");
-                boolean is_deleted = resultSet.getBoolean("is_deleted");
-                String start_time = resultSet.getString("start_time");
-                String end_time = resultSet.getString("end_time");
-                String photo_file_id = resultSet.getString("photo_file_id");
-
-                discounts.add(new Discount(id, chatId, discount_percentage, name, start_time, end_time, photo_file_id));
-            }
-
-
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }
-        return discounts;
-    }
-
     public static String takeAdminPrivilege(String chatId){
         String response = "";
         boolean success = false;
@@ -718,6 +691,97 @@ public class WorkWithDatabase {
             e.printStackTrace();
         }
         return true;
+    }
+
+    public static List<Basket> getOrderList(){
+        List<Basket> orderList = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()
+        ) {
+            Class.forName("org.postgresql.Driver");
+
+            String query = "SELECT * FROM basket WHERE is_confirmed = TRUE";
+
+            ResultSet resultSet = statement.executeQuery(query);
+            while (resultSet.next()){
+
+            }
+
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+
+
+
+
+        return orderList;
+    }
+
+    public static List<Discount> getNotDeletedDiscounts(String chatId) {
+        ArrayList discounts = new ArrayList();
+
+        try {
+            Connection connection = DriverManager.getConnection("jdbc:postgresql://ec2-54-75-26-218.eu-west-1.compute.amazonaws.com:5432/dae44hkoegn6lq", "utpvoxxsoitfbq", "0ae03e88b14ced6a6e431080225030545efe9af022cc14f62fb96346a3a16ea5");
+
+            try {
+                Statement statement = connection.createStatement();
+
+                try {
+                    Class.forName("org.postgresql.Driver");
+                    String query = "SELECT * FROM discount where is_deleted = false and chat_id = '" + chatId + "'";
+                    ResultSet resultSet = statement.executeQuery(query);
+
+                    while(resultSet.next()) {
+                        int id = resultSet.getInt(1);
+                        int discount_percentage = resultSet.getInt("discount_percentage");
+                        String name = resultSet.getString("name");
+                        String created_at = resultSet.getString("created_at");
+                        boolean is_deleted = resultSet.getBoolean("is_deleted");
+                        String start_time = resultSet.getString("start_time");
+                        String end_time = resultSet.getString("end_time");
+                        String photo_file_id = resultSet.getString("photo_file_id");
+                        String chat_id = resultSet.getString("chat_id");
+                        discounts.add(new Discount(id, chat_id, discount_percentage, name, start_time, end_time, photo_file_id));
+                    }
+                } catch (Throwable var17) {
+                    if (statement != null) {
+                        try {
+                            statement.close();
+                        } catch (Throwable var16) {
+                            var17.addSuppressed(var16);
+                        }
+                    }
+
+                    throw var17;
+                }
+
+                if (statement != null) {
+                    statement.close();
+                }
+            } catch (Throwable var18) {
+                if (connection != null) {
+                    try {
+                        connection.close();
+                    } catch (Throwable var15) {
+                        var18.addSuppressed(var15);
+                    }
+                }
+
+                throw var18;
+            }
+
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException | ClassNotFoundException var19) {
+            var19.printStackTrace();
+        }
+
+        return discounts;
+    }
+
+    public static void deleteDiscount(int discountId) { // Todo
     }
 
 }

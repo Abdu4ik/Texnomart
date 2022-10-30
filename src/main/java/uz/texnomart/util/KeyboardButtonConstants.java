@@ -24,7 +24,6 @@ public interface KeyboardButtonConstants {
     String _ADMIN_CRUD_ = "Admin ➕ / ➖";
     String _SHOW_MESSAGES_ = "✉ Xabarlarni ko'rish";
     String _PRODUCTS_ = "📦 Mahsulotlar";
-    String _DISCOUNT_ = "🧮 Mahsulotlarga chegirma e'lon qilish";
     String _SHOW_USERS_ =  "📝 Foydalanuvchilar ro'yxati";
     String _SEND_ADS_ = "📨 Reklama jo'natish";
     String _CATEGORIES_ = "📚 Kategoriyalar";
@@ -32,5 +31,9 @@ public interface KeyboardButtonConstants {
 
     String _ADD_ADMIN_ = "➕ Admin qo'shish";
     String _REMOVE_ADMIN_ = "➖ Admin o'chirish";
+
+    String _DISCOUNT_ = "🧮 Chegirmalar";
+    String _ADD_NEW_DISCOUNT_ = "Chegirma e'lon qilish";
+    String _DELETE_DISCOUNT_ = "Chegirmani o'chirish";
 
 }

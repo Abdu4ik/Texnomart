@@ -12,13 +12,10 @@ import java.util.Map;
 
 public class Container {
 
-//    public static MyBot MY_BOT = null;
-//    public static String TOKEN = "5769474941:AAEEgcFwkVu7-ANOBQO1K7wq9CtgeVwel8M";
-//    public static String USERNAME = "http://t.me/abdullo_khayrulloev_s_bot";
-
     public static MyBot MY_BOT = null;
-    public static String TOKEN = "5518102387:AAF3PgAZV4Wh1m3MOVlNzXRE7AqkwTC6zAY";
-    public static String USERNAME = "t.me/texno_mart_bot";
+    public static String TOKEN = "5769474941:AAEEgcFwkVu7-ANOBQO1K7wq9CtgeVwel8M";
+    public static String USERNAME = "http://t.me/abdullo_khayrulloev_s_bot";
+
     public static List<String> adminList = new ArrayList<>(List.of("164940659","609762012", "450369726"));
 
     // database stuff

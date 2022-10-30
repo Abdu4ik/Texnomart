@@ -81,5 +81,9 @@ public class KeyboardButtonUtil {
         ));
     }
 
+    public static ReplyKeyboard getDiscountMenu() {
+        return getMarkup(getRowList(getRow(getButton("Chegirma e'lon qilish"), getButton("Chegirmani o'chirish")), getRow(getButton("\ud83d\udd19 Orqaga"))));
+    }
+
 
 }

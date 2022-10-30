@@ -122,4 +122,9 @@ public class InlineKeyboardButtonUtil {
 
         return new InlineKeyboardMarkup(List.of(List.of(button)));
     }
+
+    public static InlineKeyboardMarkup getDiscountDeleteButton(Integer discountId) {
+        InlineKeyboardButton button = getButton("O'chirish", "_delete_" + String.valueOf(discountId));
+        return getMarkup(button);
+    }
 }

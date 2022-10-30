@@ -47,12 +47,12 @@ public class UserController {
         if (text.equals("/start")) {
             if (customer == null) {
 
-                sendMessage.setText("Assalomu alaykum!\nBotdan to'liq foydalanish uchun telefon raqamingizni jo'nating: ");
+                sendMessage.setText("Assalomu alaykum!👋\n Botdan to'liq foydalanish uchun telefon raqamingizni jo'nating: ");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
                 Container.MY_BOT.sendMsg(sendMessage);
 
             } else{
-                sendMessage.setText("Menu");
+                sendMessage.setText("Choose: ");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
                 Container.MY_BOT.sendMsg(sendMessage);
             }
@@ -89,7 +89,7 @@ public class UserController {
                     WorkWithDatabase.addMessage(text, chatId);
                     Container.customerMap.remove(chatId);
 
-                    sendMessage.setText("Xabaringiz adminga jo'natildi.");
+                    sendMessage.setText("✅ Xabaringiz adminga jo'natildi.");
                     Container.MY_BOT.sendMsg(sendMessage);
 
                 } else {

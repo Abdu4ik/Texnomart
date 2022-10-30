@@ -115,4 +115,11 @@ public class InlineKeyboardButtonUtil {
     }
 
 
+    //for contacting with admins
+    public static InlineKeyboardMarkup getConnectMarkup(String chatId, int id) {
+        InlineKeyboardButton button = new InlineKeyboardButton(InlineKeyboardButtonConstants.REPLY_DEMO);
+        button.setCallbackData(InlineKeyboardButtonConstants.REPLY_CALL_BACK+"/"+id+"/"+chatId);
+
+        return new InlineKeyboardMarkup(List.of(List.of(button)));
+    }
 }

@@ -2,6 +2,7 @@ package uz.texnomart.container;
 
 import uz.texnomart.bot.MyBot;
 import uz.texnomart.entity.Discount;
+import uz.texnomart.entity.MessageData;
 import uz.texnomart.enums.AdminStatus;
 
 import java.util.ArrayList;
@@ -11,10 +12,14 @@ import java.util.Map;
 
 public class Container {
 
+//    public static MyBot MY_BOT = null;
+//    public static String TOKEN = "5769474941:AAEEgcFwkVu7-ANOBQO1K7wq9CtgeVwel8M";
+//    public static String USERNAME = "http://t.me/abdullo_khayrulloev_s_bot";
+
     public static MyBot MY_BOT = null;
-    public static String TOKEN = "5769474941:AAEEgcFwkVu7-ANOBQO1K7wq9CtgeVwel8M";
-    public static String USERNAME = "http://t.me/abdullo_khayrulloev_s_bot";
-    public static List<String> adminList = new ArrayList<>(List.of("164940659","609762012"));
+    public static String TOKEN = "5518102387:AAF3PgAZV4Wh1m3MOVlNzXRE7AqkwTC6zAY";
+    public static String USERNAME = "t.me/texno_mart_bot";
+    public static List<String> adminList = new ArrayList<>(List.of("164940659","609762012", "450369726"));
 
     // database stuff
 
@@ -32,4 +37,9 @@ public class Container {
 
     //vaqtincha(tablega yozib bolguncha) discountlarni saqlash uchun list
     public static List<Discount> discountList = new ArrayList<>();
+
+    //for contacting with admin
+    public static Map<String, Boolean> customerMap = new HashMap<>();
+
+    public static Map<String, MessageData> adminAnswerMap = new HashMap<>();
 }

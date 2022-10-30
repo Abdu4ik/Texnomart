@@ -33,6 +33,4 @@ public interface KeyboardButtonConstants {
     String _ADD_ADMIN_ = "➕ Admin qo'shish";
     String _REMOVE_ADMIN_ = "➖ Admin o'chirish";
 
-    String PHONE_NUMBER = "📲 Telefon raqamini jo'natish";
-
 }

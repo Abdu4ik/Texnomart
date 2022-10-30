@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import uz.texnomart.container.Container;
 import uz.texnomart.db.WorkWithDatabase;
 import uz.texnomart.entity.TelegramUser;
@@ -14,11 +15,10 @@ import uz.texnomart.util.InlineKeyboardButtonUtil;
 import uz.texnomart.util.KeyboardButtonConstants;
 import uz.texnomart.util.KeyboardButtonUtil;
 
+import static uz.texnomart.db.WorkWithDatabase.changeActive;
+
 
 public class UserController {
-    private static final String url = "jdbc:postgresql://ec2-54-75-26-218.eu-west-1.compute.amazonaws.com:5432/dae44hkoegn6lq";
-    private static final String dbuser = "utpvoxxsoitfbq";
-    private static final String dbpassword = "0ae03e88b14ced6a6e431080225030545efe9af022cc14f62fb96346a3a16ea5";
 
     public static void handleMessage(Update update) {
 
@@ -40,47 +40,89 @@ public class UserController {
 
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
+        boolean active = false;
 
-        if ("/start".equals(text)) {
+        TelegramUser customer = WorkWithDatabase.getCustomerByChatId(chatId);
 
-            if (WorkWithDatabase.doesExist(chatId)){
-                sendMessage.setText("Hurmatli mijoz xush kelibsiz ... 🎉");
-                sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
-                Container.MY_BOT.sendMsg(sendMessage);
-            } else {
+        if (text.equals("/start")) {
+            if (customer == null) {
 
-                sendMessage.setText("Assalamu Aleykum \n O'z kontaktingizni jo'natish tugmasi orqali jo'nating");
+                sendMessage.setText("Assalomu alaykum!\nBotdan to'liq foydalanish uchun telefon raqamingizni jo'nating: ");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
                 Container.MY_BOT.sendMsg(sendMessage);
+
+            } else{
+                sendMessage.setText("Menu");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
+                Container.MY_BOT.sendMsg(sendMessage);
             }
-        } else if (text.equals(KeyboardButtonConstants.CATEGORIES)){
-            sendMessage.setText("Mahsulot turlarini tanlang : ");
-            sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getCategoryButtonsForUser(WorkWithDatabase.parentCategoryList()));
-            Container.MY_BOT.sendMsg(sendMessage);
-        } else {
-            sendMessage.setText("Nimadir xato ketti, qayta urunib ko'ring\nyoki /help yoki /start ni bosing");
-            Container.MY_BOT.sendMsg(sendMessage);
+        }else{
+            if(customer == null){
+                sendMessage.setText("Botdan to'liq foydalanish uchun telefon raqamingizni jo'nating: ");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
+                Container.MY_BOT.sendMsg(sendMessage);
+            }else {
+                if (customer.isActive()){
+                    if (!text.trim().isBlank()){
+                        WorkWithDatabase.setFullName(chatId, text);
+                    }
+                    changeActive(chatId, active);
+                    sendMessage.setText("Menu");
+                    sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
+                    Container.MY_BOT.sendMsg(sendMessage);
+                }else if(text.equals(KeyboardButtonConstants.SHOW_BASKET)){
+
+                    sendMessage.setText("Sizning savatingiz bo'sh");
+                    Container.MY_BOT.sendMsg(sendMessage);
+
+                    //ToDo
+
+                }else if(text.equals(KeyboardButtonConstants.MESSAGE_ADMIN)){
+
+                    Container.customerMap.put(chatId, true);
+                    WorkWithDatabase.addMessageData(chatId);
+
+                    sendMessage.setText("Xabaringizni kiriting: ");
+                    Container.MY_BOT.sendMsg(sendMessage);
+                }else if(Container.customerMap.containsKey(chatId)) {
+
+                    WorkWithDatabase.addMessage(text, chatId);
+                    Container.customerMap.remove(chatId);
+
+                    sendMessage.setText("Xabaringiz adminga jo'natildi.");
+                    Container.MY_BOT.sendMsg(sendMessage);
+
+                } else {
+                    sendMessage.setText("Noto'g'ri xabar kiritildi❌❌❌");
+                    Container.MY_BOT.sendMsg(sendMessage);
+                }
+            }
         }
     }
 
 
     private static void handleContact(User user, Message message, Contact contact) {
-
         String chatId = String.valueOf(message.getChatId());
-
+        TelegramUser customer = WorkWithDatabase.getCustomerByChatId(chatId);
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
-        user.getFirstName();
-        String fullname = user.getFirstName() +" "+ (user.getLastName() == null ? "" : user.getLastName());
 
-             sendMessage.setText("""
-                     Siz Bizning botimizda yangi ekansiz.
-                     Biz Sizni Ro'yhatga olib qoydik.\s
-                     Xush kelibsiz!""");
-             WorkWithDatabase.addUsers(new TelegramUser(chatId,fullname.trim(),contact.getPhoneNumber(), UserRoles.USER));
-             sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
-             Container.MY_BOT.sendMsg(sendMessage);
+        if(!contact.getPhoneNumber().matches("(\\+)?998\\d{9}")){
+            sendMessage.setText("Telefon raqamda xatolik❗ ");
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getContactMenu());
+            Container.MY_BOT.sendMsg(sendMessage);
+            return;
+        }
 
+        if (customer == null) {
+            boolean active = true;
+            WorkWithDatabase.addCustomer(chatId, contact);
+            sendMessage.setText("Sizga murojaat qilishimiz uchun to'liq ismingizni jo'nating:");
+            sendMessage.setReplyMarkup(new ReplyKeyboardRemove(true));
+            Container.MY_BOT.sendMsg(sendMessage);
+            changeActive(chatId, active);
+
+        }
     }
 
     public static void handleCallBackQuery(Message message, String data) {

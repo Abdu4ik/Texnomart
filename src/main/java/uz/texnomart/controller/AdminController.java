@@ -5,6 +5,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -13,6 +14,8 @@ import uz.texnomart.container.Container;
 import uz.texnomart.container.Container.*;
 import uz.texnomart.db.WorkWithDatabase;
 import uz.texnomart.entity.Advertisement;
+import uz.texnomart.entity.MessageData;
+import uz.texnomart.entity.UserMessage;
 import uz.texnomart.enums.AdminStatus;
 import uz.texnomart.db.WorkWithDatabase;
 import uz.texnomart.entity.Discount;
@@ -159,8 +162,44 @@ public class AdminController {
 
         } else if (text.equals(_ORDER_LIST_)) {
 
-        } else if (text.equals(_SHOW_MESSAGES_)) {
+        } else if (text.equals(_SHOW_MESSAGES_)){
+            List<UserMessage> userMessages = WorkWithDatabase.getMessagesFromCustomers();
+            if (userMessages.isEmpty()){
+                sendMessage.setText("Yangi xabarlar yo'q");
+                sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
+                Container.MY_BOT.sendMsg(sendMessage);
+            }else {
+                for (UserMessage userMessage : userMessages) {
+                    String str = "ChatId : " + userMessage.getSenderChatId()+ "\nFull name: " + userMessage.getFullName() +
+                            "\nPhone number: " + userMessage.getPhoneNumber()+
+                            "\nText : " + userMessage.getSenderMessage();
 
+                    SendMessage sendMessage1 = new SendMessage(chatId, str);
+                    sendMessage1.setReplyMarkup(InlineKeyboardButtonUtil.getConnectMarkup(userMessage.getSenderChatId(), userMessage.getId()));
+                    Container.MY_BOT.sendMsg(sendMessage1);
+                }
+            }
+        } else if (Container.adminAnswerMap.containsKey(chatId)){
+            MessageData messageData = Container.adminAnswerMap.get(chatId);
+
+            String customerChatId = messageData.getCustomerChatId();
+            Integer messageId = messageData.getMessage().getMessageId();
+            String messageText = messageData.getMessage().getText();
+            String customerMessage = messageData.getMessage().getText().split(" : ")[2];
+
+            sendMessage.setChatId(customerChatId);
+            sendMessage.setText("Admin ning javobi: "+text);
+            Container.MY_BOT.sendMsg(sendMessage);
+
+            WorkWithDatabase.updateMessage(chatId, customerMessage, customerChatId, text);
+
+            EditMessageText editMessageText = new EditMessageText();
+            editMessageText.setChatId(chatId);
+            editMessageText.setText(messageText+"\n\n xabariga javob: \n\n "+text);
+            editMessageText.setMessageId(messageId);
+            Container.MY_BOT.sendMsg(editMessageText);
+
+            Container.adminAnswerMap.remove(chatId);
         } else if (AdminService.checkAdminStatus(chatId, AdminStatus.ADD_DISCOUNT)) {
             boolean isDiscountExist = false;
             for (Discount discount : Container.discountList) {
@@ -275,6 +314,7 @@ public class AdminController {
         sendMessage.setChatId(chatId);
 
         DeleteMessage deleteMessage = new DeleteMessage(chatId, message.getMessageId());
+        String customerMessage = message.getText().split(" : ")[2];
 
         if (AdminService.checkAdminStatus(chatId, AdminStatus.DISCOUNT_CONFIRM) && data.equals(YES_CALL)) {
             for (Discount discount : Container.discountList) {
@@ -306,6 +346,27 @@ public class AdminController {
         }else if (data.equals(InlineKeyboardButtonConstants.YES_CALL) && AdminService.checkAdminStatus(chatId, AdminStatus.SEND_ADS)) {
             MY_BOT.sendMsg(deleteMessage);
             AdminService.putAminsIntoMap(chatId);
+        }
+
+        //for contacting to admins
+        if(data.startsWith(InlineKeyboardButtonConstants.REPLY_CALL_BACK)){
+            String messageId = data.split("/")[1];
+            if (WorkWithDatabase.checkMessage(messageId)) {
+                sendMessage.setText("Xabarga javob berilgan!");
+                Container.MY_BOT.sendMsg(sendMessage);
+
+                deleteMessage = new DeleteMessage(chatId, message.getMessageId());
+                Container.MY_BOT.sendMsg(deleteMessage);
+            }else {
+                String customerChatId = data.split("/")[2];
+
+                Container.adminAnswerMap.put(chatId, new MessageData(message, customerChatId));
+                WorkWithDatabase.updateMessageId(chatId, customerMessage, customerChatId);
+
+                sendMessage.setText("Javobingizni kiriting: ");
+                Container.MY_BOT.sendMsg(sendMessage);
+            }
+
         }
     }
 }

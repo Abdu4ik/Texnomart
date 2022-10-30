@@ -11,9 +11,10 @@ import static uz.texnomart.util.KeyboardButtonConstants.*;
 
 public class KeyboardButtonUtil {
     public static ReplyKeyboard getContactMenu() {
-        KeyboardButton button = new KeyboardButton(KeyboardButtonConstants.PHONE_NUMBER);
+        KeyboardButton button = getButton("Raqamingizni jo'nating.");
         button.setRequestContact(true);
-        return getMarkup(List.of(getRow(button)));
+
+        return getMarkup(getRowList(getRow(button)));
     }
 
     public static ReplyKeyboard getAdminMenu() {

@@ -21,4 +21,8 @@ public interface InlineKeyboardButtonConstants {
 
     String EDIT_NAME = "✏️Tahrirlash";
     String EDIT_CALLBACK = "_EDIT_";
+
+    //for contacting to admins
+    String REPLY_DEMO = "Javob yozish";
+    String REPLY_CALL_BACK = "_reply_";
 }

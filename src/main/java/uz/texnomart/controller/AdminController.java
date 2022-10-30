@@ -100,7 +100,7 @@ public class AdminController {
         sendDocument.setChatId(chatId);
         if (text.equals("/start")) {
             AdminService.putAminsIntoMap(chatId);
-            sendMessage.setText("Assalom alaykum " + message.getFrom().getFirstName() + "!\nTexnomart botiga xush kelibsiz!");
+            sendMessage.setText("Assalom alaykum hurmatli adminimiz " + message.getFrom().getFirstName() + "!\nTexnomart botiga xush kelibsiz!");
             sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
             MY_BOT.sendMsg(sendMessage);
         } else if ((AdminService.checkAdminStatus(chatId, AdminStatus.ADMIN_CRUD) ||

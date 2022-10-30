@@ -33,7 +33,7 @@ public interface KeyboardButtonConstants {
     String _REMOVE_ADMIN_ = "➖ Admin o'chirish";
 
     String _DISCOUNT_ = "🧮 Chegirmalar";
-    String _ADD_NEW_DISCOUNT_ = "Chegirma e'lon qilish";
-    String _DELETE_DISCOUNT_ = "Chegirmani o'chirish";
+    String _ADD_NEW_DISCOUNT_ = "📢 Chegirma e'lon qilish";
+    String _DELETE_DISCOUNT_ = "✈️Chegirmani o'chirish";
 
 }

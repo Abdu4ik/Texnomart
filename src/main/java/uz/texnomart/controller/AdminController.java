@@ -394,6 +394,13 @@ public class AdminController {
             data = data.replace("_delete_", "");
             WorkWithDatabase.deleteDiscount(Integer.parseInt(data));
             MY_BOT.sendMsg(sendMessage);
+        } else if (data.startsWith("parent")) {
+            String[] split = data.split("/");
+            sendMessage.setText("Sub kategoriya(lar):");
+            sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getSubCategoryButtons(WorkWithDatabase.getSubCategoryList(split[2])));
+            MY_BOT.sendMsg(sendMessage);
+        } else if (data.startsWith("sub")) {
+
         }
 
         String customerMessage = message.getText().split(" : ")[2];

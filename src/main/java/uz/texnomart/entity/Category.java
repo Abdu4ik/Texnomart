@@ -18,4 +18,10 @@ public class Category {
         this.id = id;
         this.name = name;
     }
+
+    public Category(Integer id, String name, Integer parent_id) {
+        this.id = id;
+        this.name = name;
+        this.parent_id = parent_id;
+    }
 }

@@ -1,10 +1,8 @@
 package uz.texnomart.entity;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import uz.texnomart.enums.UserRoles;
-
 @NoArgsConstructor
 @AllArgsConstructor
 @Data

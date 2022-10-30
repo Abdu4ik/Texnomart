@@ -1,10 +1,8 @@
 package uz.texnomart.db;
-
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import uz.texnomart.container.Container;
 import uz.texnomart.entity.*;
 import uz.texnomart.enums.UserRoles;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,20 +31,45 @@ public class WorkWithDatabase {
     }
 
     public static void addDiscount(Discount discount) {
+        String photo = (discount.getPhoto_file_id() == null) ? "" : discount.getPhoto_file_id();
+        //INSERT INTO discount ( discount_percentage , name, start_time, end_time,  photo_file_id, chat_id) VALUES (
+
+        String query = "INSERT INTO discount (discount_percentage , name, start_time, end_time,  photo_file_id, chat_id) VALUES (" + discount.getDiscount_percentage() +
+                " , '" + discount.getName() +
+                "', '" + discount.getStart_time() +
+                "', '" + discount.getEnd_time() +
+                "', '" + photo +
+                "', '" + discount.getChatId() +
+                "')";
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()
+        ) {
+            Class.forName("org.postgresql.Driver");
+
+
+            statement.executeUpdate(query);
+
+
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
     public static void addAdvert(Advertisement ad) {
 
-        String query = "INSERT INTO advertisement (caption, photo, chatId) VALUES (?, ?, ?)";
+        String query = "INSERT INTO advertisement (caption, photo, chatid) VALUES (?, ?, ?)";
 
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)
         ) {
             Class.forName("org.postgresql.Driver");
-
-
-
+            preparedStatement.setString(1, ad.getCaption());
+            preparedStatement.setString(2, ad.getPhoto());
+            preparedStatement.setString(3, ad.getChatId());
+            preparedStatement.execute();
 
 
         } catch (ClassNotFoundException | SQLException e) {
@@ -65,7 +88,7 @@ public class WorkWithDatabase {
             String query = "SELECT id, caption, photo FROM advertisement where chatid = '" + chatId + "' order by id DESC";
 
             ResultSet resultSet = statement.executeQuery(query);
-            if (resultSet.next()){
+            if (resultSet.next()) {
                 String caption = resultSet.getString("caption");
                 String photo = resultSet.getString("photo");
                 return new Advertisement(caption, photo, chatId);
@@ -75,6 +98,27 @@ public class WorkWithDatabase {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static List<Category> getSubCategoryList(String parentCategoryID) {
+        List<Category> categoryList = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()
+        ) {
+            String query = "select * from category where parent_id = " + parentCategoryID + " and is_deleted is false";
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                int parent_id = resultSet.getInt("parent_id");
+                categoryList.add(new Category(id, name, parent_id));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return categoryList;
     }
 
     public static List<Category> parentCategoryList() {
@@ -98,6 +142,7 @@ public class WorkWithDatabase {
 
         return categoryList;
     }
+
 
     public static String addCategory(String categoryName) {
         // parent id ni kiriting
@@ -409,7 +454,7 @@ public class WorkWithDatabase {
         return response;
     }
 
-    public static String takeAdminPrivilege(String chatId){
+    public static String takeAdminPrivilege(String chatId) {
         String response = "";
         boolean success = false;
 
@@ -418,27 +463,27 @@ public class WorkWithDatabase {
         ) {
             Class.forName("org.postgresql.Driver");
 
-            String query = "SELECT user_role FROM customer where user_role = 'ADMIN'::user_roles and chat_id = '"+ chatId +"'";
+            String query = "SELECT user_role FROM customer where user_role = 'ADMIN'::user_roles and chat_id = '" + chatId + "'";
             ResultSet resultSet = statement.executeQuery(query);
-            if (resultSet.next()){
-                query = "UPDATE customer SET user_role = 'USER'::user_roles WHERE chat_id = '"+ chatId +"'";
+            if (resultSet.next()) {
+                query = "UPDATE customer SET user_role = 'USER'::user_roles WHERE chat_id = '" + chatId + "'";
                 statement.execute(query);
-                response = chatId +" chat ID li userdan Adminlik huquqi olindi.";
+                response = chatId + " chat ID li userdan Adminlik huquqi olindi.";
                 success = true;
-            }else {
+            } else {
                 response = "Bu chat ID li admin mavjud emas!";
             }
 
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
-        if (success){
+        if (success) {
             adminList.remove(chatId);
         }
         return response;
     }
 
-    public static String grantAdminPrivilege(String chatId){
+    public static String grantAdminPrivilege(String chatId) {
         String response = "";
         boolean success = false;
 
@@ -447,30 +492,30 @@ public class WorkWithDatabase {
         ) {
             Class.forName("org.postgresql.Driver");
 
-            String query = "SELECT user_role FROM customer where user_role = 'USER'::user_roles and chat_id = '"+ chatId +"'";
+            String query = "SELECT user_role FROM customer where user_role = 'USER'::user_roles and chat_id = '" + chatId + "'";
             ResultSet resultSet = statement.executeQuery(query);
-            if (resultSet.next()){
-                query = "UPDATE customer SET user_role = 'ADMIN'::user_roles WHERE chat_id = '"+ chatId +"'";
+            if (resultSet.next()) {
+                query = "UPDATE customer SET user_role = 'ADMIN'::user_roles WHERE chat_id = '" + chatId + "'";
                 statement.execute(query);
-                response = chatId +" chat ID li userga Adminlik huquqi berildi.";
+                response = chatId + " chat ID li userga Adminlik huquqi berildi.";
                 success = true;
-            }else {
+            } else {
                 response = "Bu chat ID li user mavjud emas!";
             }
 
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
-        if (success){
+        if (success) {
             adminList.add(chatId);
         }
         return response;
     }
 
     //for contacting admin
-    public static void addCustomer(String chatId, Contact contact){
+    public static void addCustomer(String chatId, Contact contact) {
         TelegramUser customer = new TelegramUser(chatId, contact.getFirstName(), contact.getPhoneNumber(), UserRoles.USER);
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
 
             Class.forName("org.postgresql.Driver");
 
@@ -494,7 +539,7 @@ public class WorkWithDatabase {
 
     public static TelegramUser getCustomerByChatId(String chatId) {
         TelegramUser customer = new TelegramUser();
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
 
             Class.forName("org.postgresql.Driver");
 
@@ -504,16 +549,16 @@ public class WorkWithDatabase {
             preparedStatement.setString(1, chatId);
             ResultSet rs = preparedStatement.executeQuery();
 
-            if(!rs.next()){
+            if (!rs.next()) {
                 return null;
-            }else{
+            } else {
                 customer.setChatId(rs.getString("chat_id"));
                 customer.setFullName(rs.getString("fullname"));
                 customer.setPhoneNumber(rs.getString("phone_number"));
-                if (rs.getString("user_role").equals("ADMIN")){
+                if (rs.getString("user_role").equals("ADMIN")) {
                     customer.setUserRoles(UserRoles.ADMIN);
                 }
-                if (rs.getBoolean("for_fullname")){
+                if (rs.getBoolean("for_fullname")) {
                     customer.setActive(true);
                 }
             }
@@ -525,7 +570,7 @@ public class WorkWithDatabase {
     }
 
     public static void changeActive(String chatId, boolean active) {
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
 
             Class.forName("org.postgresql.Driver");
 
@@ -543,7 +588,7 @@ public class WorkWithDatabase {
     }
 
     public static void setFullName(String chatId, String text) {
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
 
             Class.forName("org.postgresql.Driver");
 
@@ -562,7 +607,7 @@ public class WorkWithDatabase {
     }
 
     public static void addMessageData(String chatId) {
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
 
             Class.forName("org.postgresql.Driver");
 
@@ -580,7 +625,7 @@ public class WorkWithDatabase {
     }
 
     public static void addMessage(String text, String chatId) {
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
 
             Class.forName("org.postgresql.Driver");
 
@@ -599,7 +644,7 @@ public class WorkWithDatabase {
     }
 
     public static void updateMessageId(String chatId, String message, String customerChatId) {
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
 
             Class.forName("org.postgresql.Driver");
 
@@ -619,7 +664,7 @@ public class WorkWithDatabase {
     }
 
     public static void updateMessage(String chatId, String customerMessage, String customerChatId, String text) {
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
 
             Class.forName("org.postgresql.Driver");
 
@@ -642,8 +687,8 @@ public class WorkWithDatabase {
     public static List<UserMessage> getMessagesFromCustomers() {
         List<UserMessage> messages = new ArrayList<>();
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
-            Statement statement = connection.createStatement()) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()) {
 
 
             Class.forName("org.postgresql.Driver");
@@ -652,7 +697,7 @@ public class WorkWithDatabase {
 
             ResultSet rs = statement.executeQuery(query);
 
-            while (rs.next()){
+            while (rs.next()) {
                 int messageId = rs.getInt(1);
                 String senderChatId = rs.getString("sender_chat_id");
                 String fullName = rs.getString("fullname");
@@ -669,7 +714,7 @@ public class WorkWithDatabase {
     }
 
     public static boolean checkMessage(String messageId) {
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
 
             Class.forName("org.postgresql.Driver");
 
@@ -693,7 +738,7 @@ public class WorkWithDatabase {
         return true;
     }
 
-    public static List<Basket> getOrderList(){
+    public static List<Basket> getOrderList() { //Todo getOrderList method and write it to a PDF File
         List<Basket> orderList = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
@@ -701,10 +746,10 @@ public class WorkWithDatabase {
         ) {
             Class.forName("org.postgresql.Driver");
 
-            String query = "SELECT * FROM basket WHERE is_confirmed = TRUE";
+            String query = "SELECT b.customer_id, p.name, p.price , bd.quantity, b.total_price  FROM basket b JOIN basket_detail bd on b.id = bd.basket_id JOIN product p on bd.product_id = p.id WHERE b.is_confirmed IS TRUE";
 
             ResultSet resultSet = statement.executeQuery(query);
-            while (resultSet.next()){
+            while (resultSet.next()) {
 
             }
 
@@ -713,26 +758,23 @@ public class WorkWithDatabase {
         }
 
 
-
-
         return orderList;
     }
 
     public static List<Discount> getNotDeletedDiscounts(String chatId) {
-        ArrayList discounts = new ArrayList();
+        List<Discount> discounts = new ArrayList();
 
-        try {
-            Connection connection = DriverManager.getConnection("jdbc:postgresql://ec2-54-75-26-218.eu-west-1.compute.amazonaws.com:5432/dae44hkoegn6lq", "utpvoxxsoitfbq", "0ae03e88b14ced6a6e431080225030545efe9af022cc14f62fb96346a3a16ea5");
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                Statement statement = connection.createStatement()){
 
             try {
-                Statement statement = connection.createStatement();
 
                 try {
                     Class.forName("org.postgresql.Driver");
                     String query = "SELECT * FROM discount where is_deleted = false and chat_id = '" + chatId + "'";
                     ResultSet resultSet = statement.executeQuery(query);
 
-                    while(resultSet.next()) {
+                    while (resultSet.next()) {
                         int id = resultSet.getInt(1);
                         int discount_percentage = resultSet.getInt("discount_percentage");
                         String name = resultSet.getString("name");

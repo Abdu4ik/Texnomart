@@ -93,7 +93,7 @@ public class UserController {
                     Container.MY_BOT.sendMsg(sendMessage);
 
                 } else {
-                    sendMessage.setText("Noto'g'ri xabar kiritildi❌❌❌");
+                    sendMessage.setText("Noto'g'ri xabar kiritildi❌");
                     Container.MY_BOT.sendMsg(sendMessage);
                 }
             }

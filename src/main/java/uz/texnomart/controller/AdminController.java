@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
+import uz.texnomart.bot.MyBot;
 import uz.texnomart.container.Container;
 import uz.texnomart.db.WorkWithDatabase;
 import uz.texnomart.entity.Advertisement;
@@ -18,9 +19,11 @@ import uz.texnomart.entity.UserMessage;
 import uz.texnomart.enums.AdminStatus;
 import uz.texnomart.entity.Discount;
 import uz.texnomart.service.AdminService;
+import uz.texnomart.service.WorkWithFiles;
 import uz.texnomart.util.InlineKeyboardButtonConstants;
 import uz.texnomart.util.InlineKeyboardButtonUtil;
 
+import static uz.texnomart.container.Container.*;
 import static uz.texnomart.util.InlineKeyboardButtonConstants.*;
 
 import uz.texnomart.util.KeyboardButtonUtil;
@@ -29,8 +32,6 @@ import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 
-import static uz.texnomart.container.Container.MY_BOT;
-import static uz.texnomart.container.Container.adminMap;
 import static uz.texnomart.util.KeyboardButtonConstants.*;
 
 public class AdminController {
@@ -118,9 +119,11 @@ public class AdminController {
             MY_BOT.sendMsg(sendMessage);
         } else if (AdminService.checkAdminStatus(chatId, AdminStatus.REMOVE_ADMIN)) {
             sendMessage.setText(WorkWithDatabase.takeAdminPrivilege(text));
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
             MY_BOT.sendMsg(sendMessage);
         } else if (AdminService.checkAdminStatus(chatId, AdminStatus.ADD_ADMIN)) {
             sendMessage.setText(WorkWithDatabase.grantAdminPrivilege(text));
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getAdminMenu());
             MY_BOT.sendMsg(sendMessage);
         } else if (text.equals(_ADD_ADMIN_)) {
             AdminService.changeAdminStatus(chatId, AdminStatus.ADD_ADMIN);
@@ -133,14 +136,14 @@ public class AdminController {
         } else if (text.equals(_SHOW_USERS_)) {
             AdminService.changeAdminStatus(chatId, AdminStatus.SHOW_USERS);
             AdminService.showUsersAsPDF();
-            File file = new File(Container.BASE_FOLDER, "Foydalanuvchilar rõyxati.pdf");
+            File file = new File(BASE_FOLDER, "Foydalanuvchilar rõyxati.pdf");
             sendDocument.setDocument(new InputFile(file));
             MY_BOT.sendMsg(sendDocument);
             file.delete();
         } else if (text.equals(_ADMIN_CRUD_)) {
             AdminService.changeAdminStatus(chatId, AdminStatus.ADMIN_CRUD); // admin statusni Edit qilishga o'tkazib qo'yadi
             AdminService.showUsersAsPDF();
-            File file = new File(Container.BASE_FOLDER, "Foydalanuvchilar rõyxati.pdf");
+            File file = new File(BASE_FOLDER, "Foydalanuvchilar rõyxati.pdf");
             sendDocument.setDocument(new InputFile(file));
             sendDocument.setReplyMarkup(KeyboardButtonUtil.getEditAdminMenu());
             sendDocument.setCaption("Admin qo'shish yoki adminlik huquqini olib qo'yish uchun sizga yuqoridagi ma'lumot kerak bo'ladi.");
@@ -153,14 +156,15 @@ public class AdminController {
             MY_BOT.sendMsg(sendMessage);
 
         } else if (text.equals(_DISCOUNT_)) {
+            AdminService.changeAdminStatus(chatId, AdminStatus.DISCOUNT);
             sendMessage.setText("Tanlang: ");
             sendMessage.setReplyMarkup(KeyboardButtonUtil.getDiscountMenu());
             MY_BOT.sendMsg(sendMessage);
-        } else if (text.equals(_ADD_NEW_DISCOUNT_)) {
+        } else if (text.equals(_ADD_NEW_DISCOUNT_) && AdminService.checkAdminStatus(chatId, AdminStatus.DISCOUNT)) {
             AdminService.changeAdminStatus(chatId, AdminStatus.ADD_DISCOUNT);
             sendMessage.setText("Chegirma rasmini yoki nomini yoki rasmi bilan nomini jo'nating");
             MY_BOT.sendMsg(sendMessage);
-        } else if (text.equals(_DELETE_DISCOUNT_)) {
+        } else if (text.equals(_DELETE_DISCOUNT_) && AdminService.checkAdminStatus(chatId, AdminStatus.DISCOUNT)) {
             AdminService.changeAdminStatus(chatId, AdminStatus.DELETE_DISCOUNT);
             List<Discount> notDeletedDiscounts = WorkWithDatabase.getNotDeletedDiscounts(chatId);
             if (notDeletedDiscounts.size() != 0) {
@@ -198,14 +202,57 @@ public class AdminController {
                 sendMessage.setText("Chegirmalar mavjud emas");
                 MY_BOT.sendMsg(sendMessage);
             }
-        } else if (text.equals(_CATEGORIES_)) {
-            sendMessage.setText("Mavjud kategoriyalar");
+        } else if (text.equals(_ADD_CATEGORIES_)) {
+            AdminService.changeAdminStatus(chatId, AdminStatus.ADD_CATEGORIES);
+            sendMessage.setText("Tanlang:");
+            sendMessage.setReplyMarkup(KeyboardButtonUtil.getCRUDCategoryMenu());
+            MY_BOT.sendMsg(sendMessage);
+        }else if (text.equals(_ADD_PARENT_C_) && AdminService.checkAdminStatus(chatId, AdminStatus.ADD_CATEGORIES)){
+            AdminService.changeAdminStatus(chatId, AdminStatus.ADD_PARENT_C);
+            sendMessage.setText("Yangi ota kategoriyaning nomini kiriting: ");
+            MY_BOT.sendMsg(sendMessage);
+        }else if (AdminService.checkAdminStatus(chatId, AdminStatus.ADD_PARENT_C)){
+            // Todo write a method that will take .text. which will be the new parent category and create a new parent category
+            sendMessage.setText(WorkWithDatabase.createNewParentCategory(text));
+            MY_BOT.sendMsg(sendMessage);
+        }else if (text.equals(_ADD_SUB_C_) && AdminService.checkAdminStatus(chatId, AdminStatus.ADD_CATEGORIES)){
+            AdminService.changeAdminStatus(chatId, AdminStatus.ADD_CHILD_C);
+            sendMessage.setText("Qaysi ota kategoriyaga sub kategoriya qo'shmoqchisiz?");
             sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getCategoryButtonsForUser(WorkWithDatabase.parentCategoryList()));
             MY_BOT.sendMsg(sendMessage);
-        } else if (text.equals(_PRODUCTS_)) {
+        }else if (AdminService.checkAdminStatus(chatId, AdminStatus.ADD_CHILD_C)){
+            sendMessage.setText(WorkWithDatabase.createNewSubCategory(text, parent_c_id));
+            MY_BOT.sendMsg(sendMessage);
+        } else if (text.equals(_REMOVE_PARENT_C_) && AdminService.checkAdminStatus(chatId, AdminStatus.ADD_CATEGORIES)){
+            AdminService.changeAdminStatus(chatId, AdminStatus.REMOVE_PARENT_C);
+            sendMessage.setText("O'chirishingiz mumkin bo'lgan kategoriyalar:");
+            sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getCategoryButtonsForUser(WorkWithDatabase.parentCategoryList()));
+            MY_BOT.sendMsg(sendMessage);
+        } else if (text.equals(_REMOVE_SUB_C_) && AdminService.checkAdminStatus(chatId, AdminStatus.ADD_CATEGORIES)){
+            AdminService.changeAdminStatus(chatId, AdminStatus.REMOVE_CHILD_C);
+            sendMessage.setText("O'chirmoqhi bo'lgan sub kategoriyaning parent kategoriyasini tanlang:");
+            sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getCategoryButtonsForUser(WorkWithDatabase.parentCategoryList()));
+            MY_BOT.sendMsg(sendMessage);
+        } else if (false){
 
+        } else if (false){
+
+        }else if (text.equals(_PRODUCTS_)) {
+            sendMessage.setText("Kategoriyalar: ");
+            sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getCategoryButtonsForUser(WorkWithDatabase.parentCategoryList()));
+            MY_BOT.sendMsg(sendMessage);
         } else if (text.equals(_ORDER_LIST_)) {
-
+                AdminService.changeAdminStatus(chatId, AdminStatus.ORDER_LIST);
+            if (WorkWithDatabase.getOrderList().size() == 0){
+                sendMessage.setText("Hali buyurtma yo'q!");
+                MY_BOT.sendMsg(sendMessage);
+            }else {
+                WorkWithFiles.orderListInPDF(WorkWithDatabase.getOrderList());
+                File file = new File(BASE_FOLDER, "Buyurtmalar rõyxati.pdf");
+                sendDocument.setDocument(new InputFile(file));
+                MY_BOT.sendMsg(sendDocument);
+                file.delete();
+            }
         } else if (text.equals(_SHOW_MESSAGES_)) {
             List<UserMessage> userMessages = WorkWithDatabase.getMessagesFromCustomers();
             if (userMessages.isEmpty()) {
@@ -345,6 +392,9 @@ public class AdminController {
             sendMessage.setText(text + "\n\n Shu e'lonni barcha foydalanuvchilarga yurborasizmi?");
             sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmationButtons());
             MY_BOT.sendMsg(sendMessage);
+        }else {
+            sendMessage.setText("Kod yozganlar kutmagan qanaqadir case yuz berdi!\n Iltimos bu haqda @a_Bukharanian_user ga murojaat qiling.");
+            MY_BOT.sendMsg(sendMessage);
         }
 
     }
@@ -384,8 +434,7 @@ public class AdminController {
             AdminService.sendAdsToAllCustomers(adToBeSent.getPhoto(), adToBeSent.getCaption());
             sendMessage.setText("Reklama barcha foydalanuvchilarga muvaffaqiyatli yuborildi! 🎉");
             MY_BOT.sendMsg(sendMessage);
-            MY_BOT.sendMsg(deleteMessage);
-            AdminService.putAminsIntoMap(chatId);
+            adminMap.put(chatId, null);
         } else if (data.equals(NO_CALL) && AdminService.checkAdminStatus(chatId, AdminStatus.SEND_ADS)) {
             MY_BOT.sendMsg(deleteMessage);
             AdminService.putAminsIntoMap(chatId);
@@ -394,13 +443,33 @@ public class AdminController {
             data = data.replace("_delete_", "");
             WorkWithDatabase.deleteDiscount(Integer.parseInt(data));
             MY_BOT.sendMsg(sendMessage);
-        } else if (data.startsWith("parent")) {
+        }else if (data.startsWith("parent") && AdminService.checkAdminStatus(chatId, AdminStatus.ADD_CHILD_C)){
             String[] split = data.split("/");
-            sendMessage.setText("Sub kategoriya(lar):");
+            parent_c_id = Integer.parseInt(split[2]);
+            sendMessage.setText("Yangi sub kategoriyaning nomini kiriting: ");
+            MY_BOT.sendMsg(sendMessage);
+        }else if (data.startsWith("parent") && AdminService.checkAdminStatus(chatId, AdminStatus.REMOVE_PARENT_C)){
+            String[] split = data.split("/");
+            parent_c_name = split[1];
+            sendMessage.setText(WorkWithDatabase.deleteParentCategory(parent_c_name));
+            MY_BOT.sendMsg(sendMessage);
+        }else if (data.startsWith("parent") && AdminService.checkAdminStatus(chatId, AdminStatus.REMOVE_CHILD_C)){
+            String[] split = data.split("/");
+            sendMessage.setText("O'chirmoqchi bo'lgan sub kategoriyangizni tanlang:");
             sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getSubCategoryButtons(WorkWithDatabase.getSubCategoryList(split[2])));
             MY_BOT.sendMsg(sendMessage);
+        }else if (data.startsWith("parent")) {
+            String[] split = data.split("/");
+            sendMessage.setText(split[1] +"ning sub kategoriya(lar)i:");
+            sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getSubCategoryButtons(WorkWithDatabase.getSubCategoryList(split[2])));
+            MY_BOT.sendMsg(sendMessage);
+        }else if (data.startsWith("sub") && AdminService.checkAdminStatus(chatId, AdminStatus.REMOVE_CHILD_C)){
+            String[] split = data.split("/");
+            sendMessage.setText(WorkWithDatabase.deleteSubCategory(split[1]));
+            MY_BOT.sendMsg(sendMessage);
         } else if (data.startsWith("sub")) {
-
+            String[] split = data.split("/");
+            // Todo
         }
 
         String customerMessage = message.getText().split(" : ")[2];

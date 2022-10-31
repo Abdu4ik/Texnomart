@@ -3,6 +3,7 @@ package uz.texnomart.container;
 import uz.texnomart.bot.MyBot;
 import uz.texnomart.entity.Discount;
 import uz.texnomart.entity.MessageData;
+import uz.texnomart.entity.Product;
 import uz.texnomart.enums.AdminStatus;
 
 import java.util.ArrayList;
@@ -31,12 +32,19 @@ public class Container {
     // resourses folder path
 
     public static final String BASE_FOLDER = "src/main/resources/files/documents";
+    public static Integer parent_c_id;
+    public static String parent_c_name;
 
     //vaqtincha(tablega yozib bolguncha) discountlarni saqlash uchun list
     public static List<Discount> discountList = new ArrayList<>();
 
-    //for contacting with admin
+    //to contact with admin
     public static Map<String, Boolean> customerMap = new HashMap<>();
 
     public static Map<String, MessageData> adminAnswerMap = new HashMap<>();
+
+    // map for containing the products for a certain time
+    public static Map<String, List<Product>> productMap = new HashMap<>();
+    // for tracking the amount of button presses by the users
+    public static Map<String, Integer> buttonPressCount = new HashMap<>();
 }

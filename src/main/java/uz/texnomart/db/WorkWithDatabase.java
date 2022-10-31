@@ -3,6 +3,8 @@ import org.telegram.telegrambots.meta.api.objects.Contact;
 import uz.texnomart.container.Container;
 import uz.texnomart.entity.*;
 import uz.texnomart.enums.UserRoles;
+
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -738,8 +740,8 @@ public class WorkWithDatabase {
         return true;
     }
 
-    public static List<Basket> getOrderList() { //Todo getOrderList method and write it to a PDF File
-        List<Basket> orderList = new ArrayList<>();
+    public static List<OrderList> getOrderList() { //Todo getOrderList method and write it to a PDF File
+        List<OrderList> orderList = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
              Statement statement = connection.createStatement()
@@ -750,7 +752,12 @@ public class WorkWithDatabase {
 
             ResultSet resultSet = statement.executeQuery(query);
             while (resultSet.next()) {
-
+                String customer_id = resultSet.getString("customer_id");
+                String name = resultSet.getString("name");
+                BigDecimal price = resultSet.getBigDecimal("price");
+                int quantity = resultSet.getInt("quantity");
+                BigDecimal total_price = resultSet.getBigDecimal("total_price");
+                orderList.add(new OrderList(customer_id, name, price, quantity, total_price));
             }
 
         } catch (ClassNotFoundException | SQLException e) {
@@ -778,8 +785,6 @@ public class WorkWithDatabase {
                         int id = resultSet.getInt(1);
                         int discount_percentage = resultSet.getInt("discount_percentage");
                         String name = resultSet.getString("name");
-                        String created_at = resultSet.getString("created_at");
-                        boolean is_deleted = resultSet.getBoolean("is_deleted");
                         String start_time = resultSet.getString("start_time");
                         String end_time = resultSet.getString("end_time");
                         String photo_file_id = resultSet.getString("photo_file_id");
@@ -835,5 +840,216 @@ public class WorkWithDatabase {
         }
 
     }
+
+    public static String createNewSubCategory(String name, Integer parentId) {
+        String response = "";
+        boolean isDuplicate = false;
+
+        try ( Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+              Statement statement = connection.createStatement())
+        {
+        String query1 = "SELECT name FROM category WHERE parent_id IS NOT NULL";
+
+            ResultSet resultSet = statement.executeQuery(query1);
+            while (resultSet.next()){
+                if (resultSet.getString("name").equalsIgnoreCase(name.trim())){
+                    isDuplicate = true;
+                }
+            }
+
+            if (!isDuplicate){
+                    response = "Sub kategoriya muvaffaqiyatli qo'shildi!";
+                    String query = "INSERT INTO category(name, parent_id) VALUES (?, ?)";
+                try (Connection connection1 = DriverManager.getConnection(URL, USER, PASSWORD);
+                    PreparedStatement preparedStatement = connection1.prepareStatement(query);
+                ) {
+                    Class.forName("org.postgresql.Driver");
+
+                    preparedStatement.setString(1, name);
+                    preparedStatement.setInt(2, parentId);
+
+                    preparedStatement.executeUpdate();
+
+                } catch (SQLException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+            }else{
+                response = "Bu nomdagi sub kategoriya mavjud";
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+
+        return response;
+    }
+
+
+    public static String createNewParentCategory(String name) {
+        String response = "";
+        boolean isDuplicate = false;
+
+        try ( Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+              Statement statement = connection.createStatement())
+        {
+            String query1 = "SELECT name FROM category WHERE parent_id IS NULL";
+
+            ResultSet resultSet = statement.executeQuery(query1);
+            while (resultSet.next()){
+                if (resultSet.getString("name").equalsIgnoreCase(name.trim())){
+                    isDuplicate = true;
+                }
+            }
+
+            if (!isDuplicate){
+                response = "Ota kategoriya muvaffaqiyatli qo'shildi!";
+                String query = "INSERT INTO category(name) VALUES (?)";
+                try (Connection connection1 = DriverManager.getConnection(URL, USER, PASSWORD);
+                     PreparedStatement preparedStatement = connection1.prepareStatement(query);
+                ) {
+                    Class.forName("org.postgresql.Driver");
+
+                    preparedStatement.setString(1, name);
+
+                    preparedStatement.executeUpdate();
+
+                } catch (SQLException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+            }else{
+                response = "Bu nomdagi ota kategoriya mavjud!";
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+
+        return response;
+    }
+
+
+    public static String deleteParentCategory(String name) {
+        String response = "";
+        boolean doesExist = false;
+
+        try ( Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+              Statement statement = connection.createStatement())
+        {
+            String query1 = "SELECT name FROM category WHERE parent_id IS NULL";
+
+            ResultSet resultSet = statement.executeQuery(query1);
+            while (resultSet.next()){
+                if (resultSet.getString("name").equalsIgnoreCase(name.trim())){
+                    doesExist = true;
+                }
+            }
+
+            if (doesExist){
+                response = "Ota kategoriya muvaffaqiyatli o'chirildi!";
+                String query = "UPDATE category SET is_deleted = true WHERE name = (?)";
+                try (Connection connection1 = DriverManager.getConnection(URL, USER, PASSWORD);
+                     PreparedStatement preparedStatement = connection1.prepareStatement(query);
+                ) {
+                    Class.forName("org.postgresql.Driver");
+
+                    preparedStatement.setString(1, name);
+
+                    preparedStatement.executeUpdate();
+
+                } catch (SQLException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+            }else{
+                response = "Bu nomdagi ota kategoriya mavjud emas!";
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+
+        return response;
+    }
+
+    public static String deleteSubCategory(String name) {
+        String response = "";
+        boolean doesExist = false;
+
+        try ( Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+              Statement statement = connection.createStatement())
+        {
+            String query1 = "SELECT name FROM category WHERE parent_id IS NOT NULL";
+
+            ResultSet resultSet = statement.executeQuery(query1);
+            while (resultSet.next()){
+                if (resultSet.getString("name").equalsIgnoreCase(name.trim())){
+                    doesExist = true;
+                }
+            }
+
+            if (doesExist){
+                response = "Ota kategoriya muvaffaqiyatli o'chirildi!";
+                String query = "UPDATE category SET is_deleted = true WHERE name = (?)";
+                try (Connection connection1 = DriverManager.getConnection(URL, USER, PASSWORD);
+                     PreparedStatement preparedStatement = connection1.prepareStatement(query);
+                ) {
+                    Class.forName("org.postgresql.Driver");
+
+                    preparedStatement.setString(1, name);
+
+                    preparedStatement.executeUpdate();
+
+                } catch (SQLException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+            }else{
+                response = "Bu nomdagi ota kategoriya mavjud emas!";
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+
+        return response;
+    }
+
+    public static List<Product> getProductOneByOne(int categoryId){
+        List<Product> products = new ArrayList<>();
+            String query = "SELECT * FROM product WHERE is_deleted = FALSE and category_id = (?) ORDER BY id ";
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
+            preparedStatement.setInt(1 ,categoryId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()){
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                int category_id = resultSet.getInt("category_id");
+                BigDecimal price = resultSet.getBigDecimal("price");
+                String photo_file_id = resultSet.getString("photo_file_id");
+                String color = resultSet.getString("color");
+                products.add(new Product(id, name, category_id, price, false, photo_file_id, color));
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return products;
+
+    }
+
 
 }

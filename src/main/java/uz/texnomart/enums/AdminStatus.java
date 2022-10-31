@@ -15,5 +15,15 @@ public enum AdminStatus {
     ORDER_LIST,
     ADMIN_CRUD,
     ADD_ADMIN,
-    REMOVE_ADMIN
+    REMOVE_ADMIN,
+
+    ADD_CATEGORIES,
+    ADD_PARENT_C,
+    ADD_CHILD_C,
+    REMOVE_PARENT_C,
+    REMOVE_CHILD_C
+
+
+
+
 }

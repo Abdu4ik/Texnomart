@@ -7,6 +7,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import uz.texnomart.container.Container;
+import uz.texnomart.entity.OrderList;
 import uz.texnomart.entity.TelegramUser;
 import uz.texnomart.enums.UserRoles;
 
@@ -52,6 +53,48 @@ public class WorkWithFiles {
                 table.addCell(user.getFullName());
                 table.addCell(user.getPhoneNumber());
                 table.addCell(String.valueOf(user.getUserRoles()));
+            }
+
+            document.add(table);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void orderListInPDF(List<OrderList> orderLists) {
+        final String BASE_FOLDER = "src/main/resources/files/documents";
+        File file = new File(BASE_FOLDER, "Buyurtmalar rõyxati.pdf");
+        file.getParentFile().mkdirs();
+
+        try (PdfWriter pdfWriter = new PdfWriter(file);
+             PdfDocument pdfDocument = new PdfDocument(pdfWriter);
+             Document document = new Document(pdfDocument)
+        ) {
+            pdfDocument.addNewPage();
+
+            Paragraph paragraph = new Paragraph("Buyurtmalar ro'yxati");
+            paragraph.setTextAlignment(TextAlignment.CENTER);
+
+            document.add(paragraph);
+
+            float[] columnWidths = {12f, 70f, 150f, 90f, 13f, 150f};
+            Table table = new Table(columnWidths);
+
+            String [] columns = {"T/R ", "User ID", "Mahsulot nomi", "Narxi", "Soni", "Umumiy narxi"};
+
+            for (String column : columns) {
+                table.addCell(column);
+            }
+            int number = 0;
+            for (OrderList order : orderLists) {
+
+                table.addCell(String.valueOf(++number));
+                table.addCell(order.getCustomer_id());
+                table.addCell(order.getProductName());
+                table.addCell(String.valueOf(order.getPrice()));
+                table.addCell(String.valueOf(order.getQuantity()));
+                table.addCell(String.valueOf(order.getTotal_price()));
             }
 
             document.add(table);

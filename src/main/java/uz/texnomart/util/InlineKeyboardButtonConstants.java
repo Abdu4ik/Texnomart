@@ -22,6 +22,9 @@ public interface InlineKeyboardButtonConstants {
     String EDIT_NAME = "✏ Tahrirlash";
     String EDIT_CALLBACK = "_EDIT_";
 
+    String DELETE_C = "❌ O'chirish";
+    String RENAME_C = "🖊️ Nomini o'zgartirish";
+
     //for contacting to admins
     String REPLY_DEMO = "✍️Javob yozish";
     String REPLY_CALL_BACK = "_reply_";

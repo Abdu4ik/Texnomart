@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static uz.texnomart.container.Container.*;
 import static uz.texnomart.util.InlineKeyboardButtonConstants.*;
 
 public class InlineKeyboardButtonUtil {
@@ -78,6 +79,7 @@ public class InlineKeyboardButtonUtil {
         List<InlineKeyboardButton> row3 = new ArrayList<>();
         List<InlineKeyboardButton> row4 = new ArrayList<>();
         List<InlineKeyboardButton> row5 = new ArrayList<>();
+
         for (int i = 0; i < inlineKeyboardButtonList.size(); i++) {
             if (i%5==0){
                 row1.add(inlineKeyboardButtonList.get(i));
@@ -113,6 +115,7 @@ public class InlineKeyboardButtonUtil {
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         List<InlineKeyboardButton> row3 = new ArrayList<>();
         List<InlineKeyboardButton> row4 = new ArrayList<>();
+
         for (int i = 0; i < inlineKeyboardButtonList.size(); i++) {
             if (i%4==0){
                 row1.add(inlineKeyboardButtonList.get(i));
@@ -124,7 +127,6 @@ public class InlineKeyboardButtonUtil {
                 row4.add(inlineKeyboardButtonList.get(i));
             }
         }
-
         return getMarkup(row1,row2,row3,row4);
     }
 

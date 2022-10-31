@@ -11,7 +11,7 @@ import static uz.texnomart.util.KeyboardButtonConstants.*;
 
 public class KeyboardButtonUtil {
     public static ReplyKeyboard getContactMenu() {
-        KeyboardButton button = getButton("Raqamingizni jo'nating.");
+        KeyboardButton button = getButton(PHONE_NUMBER);
         button.setRequestContact(true);
 
         return getMarkup(getRowList(getRow(button)));
@@ -19,10 +19,10 @@ public class KeyboardButtonUtil {
 
     public static ReplyKeyboard getAdminMenu() {
         return getMarkup(getRowList(
-                getRow(getButton(_PRODUCTS_), getButton(_ADMIN_CRUD_)),
-                getRow(getButton(_SHOW_MESSAGES_), getButton(_DISCOUNT_)),
-                getRow(getButton(_SHOW_USERS_), getButton(_SEND_ADS_)),
-                getRow(getButton(_CATEGORIES_), getButton(_ORDER_LIST_))
+                getRow(getButton(_PRODUCTS_), getButton(_DISCOUNT_)),
+                getRow(getButton(_SHOW_MESSAGES_), getButton(_SEND_ADS_)),
+                getRow(getButton(_ADD_CATEGORIES_), getButton(_ADMIN_CRUD_)),
+                getRow(getButton(_SHOW_USERS_), getButton(_ORDER_LIST_))
         ));
     }
     public static ReplyKeyboard getBackMenu() {
@@ -82,8 +82,15 @@ public class KeyboardButtonUtil {
     }
 
     public static ReplyKeyboard getDiscountMenu() {
-        return getMarkup(getRowList(getRow(getButton("Chegirma e'lon qilish"), getButton("Chegirmani o'chirish")), getRow(getButton("\ud83d\udd19 Orqaga"))));
+        return getMarkup(getRowList(getRow(getButton(_ADD_NEW_DISCOUNT_), getButton(_DELETE_DISCOUNT_)), getRow(getButton(_BACK_TO_MENU_))));
     }
 
+    public static ReplyKeyboard getCRUDCategoryMenu() {
+        return getMarkup(getRowList(
+                getRow(getButton(_ADD_PARENT_C_), getButton(_ADD_SUB_C_)),
+                getRow(getButton(_REMOVE_PARENT_C_), getButton(_REMOVE_SUB_C_)),
+                getRow(getButton(BACK))
+        ));
+    }
 
 }

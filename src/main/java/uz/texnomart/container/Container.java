@@ -4,6 +4,7 @@ import uz.texnomart.bot.MyBot;
 import uz.texnomart.entity.Discount;
 import uz.texnomart.entity.MessageData;
 import uz.texnomart.entity.Product;
+import uz.texnomart.entity.UserProduct;
 import uz.texnomart.enums.AdminStatus;
 
 import java.util.ArrayList;
@@ -47,4 +48,8 @@ public class Container {
     public static Map<String, List<Product>> productMap = new HashMap<>();
     // for tracking the amount of button presses by the users
     public static Map<String, Integer> buttonPressCount = new HashMap<>();
+
+    //for getting basket details
+    public static Map<String, List<UserProduct>> userBaskets = new HashMap<String, List<UserProduct>>();
+    public static Map<String, Integer> countButtons = new HashMap<>();
 }

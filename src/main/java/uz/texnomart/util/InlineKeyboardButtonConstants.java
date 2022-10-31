@@ -28,4 +28,25 @@ public interface InlineKeyboardButtonConstants {
     //for contacting to admins
     String REPLY_DEMO = "✍️Javob yozish";
     String REPLY_CALL_BACK = "_reply_";
+
+    //for basket
+    String CONFIRM_DEMO = "✅ Tasdiqlash";
+    String CONFIRM_CALL_BACK = "details_confirm_";
+    String CANCEL_DEMO = "❌ Bekor qilish";
+    String CANCEL_CALL_BACK = "details_cancel_";
+    String DETAILS = "📜 Xarid haqida ma'lumot";
+    String DETAILS_CALL_BACK = "details_";
+
+    //for product
+    String INCREASE = "➕";
+    String INCREASE_CALL_BACK = "change_increase_";
+    String DECREASE = "➖";
+    String DECREASE_CALL_BACK = "change_decrease_";
+
+    String UP = "Keyingi mahsulot ➡";
+    String UP_CALL_BACK = "button_up_";
+    String DOWN = "Oldingi mahsulot ⬅";
+    String DOWN_CALL_BACK = "button_down_";
+    String BACK1 = "Xaridlar oynasiga qaytish";
+    String BACK1_CALL_BACK = "details_back_";
 }

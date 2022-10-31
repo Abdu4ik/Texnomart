@@ -1,20 +1,23 @@
 package uz.texnomart.controller;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Contact;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import uz.texnomart.container.Container;
 import uz.texnomart.db.WorkWithDatabase;
 import uz.texnomart.entity.TelegramUser;
-import uz.texnomart.enums.UserRoles;
-import uz.texnomart.service.AdminService;
+import uz.texnomart.entity.UserProduct;
+import uz.texnomart.util.InlineKeyboardButtonConstants;
 import uz.texnomart.util.InlineKeyboardButtonUtil;
 import uz.texnomart.util.KeyboardButtonConstants;
 import uz.texnomart.util.KeyboardButtonUtil;
 
+import java.util.List;
+
+import static uz.texnomart.container.Container.*;
+import static uz.texnomart.container.Container.userBaskets;
 import static uz.texnomart.db.WorkWithDatabase.changeActive;
 
 
@@ -72,10 +75,21 @@ public class UserController {
                     Container.MY_BOT.sendMsg(sendMessage);
                 }else if(text.equals(KeyboardButtonConstants.SHOW_BASKET)){
 
-                    sendMessage.setText("Sizning savatingiz bo'sh");
-                    Container.MY_BOT.sendMsg(sendMessage);
+                    String str = WorkWithDatabase.getBasket(chatId);
 
-                    //ToDo
+                    String numberOfItems = str.split(" : ")[0];
+                    String totalPrice = str.split(" : ")[1];
+                    String basketId = str.split(" : ")[2];
+                    if (numberOfItems.equals("0")){
+                        sendMessage.setText("Savatingizda hech narsa yo'q");
+                        MY_BOT.sendMsg(sendMessage);
+                    }else {
+                        sendMessage.setText("Sizning savatingizda 🛒: " +
+                                "\n\nMahsulot turlari soni 🎆:   " + numberOfItems
+                                + "\nUmumiy summa 🎇:   " + totalPrice);
+                        sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmOrCancelMenu(basketId));
+                        Container.MY_BOT.sendMsg(sendMessage);
+                    }
 
                 }else if(text.equals(KeyboardButtonConstants.MESSAGE_ADMIN)){
 
@@ -126,6 +140,107 @@ public class UserController {
     }
 
     public static void handleCallBackQuery(Message message, String data) {
+        String chatId = String.valueOf(message.getChatId());
 
+        SendMessage sendMessage = new SendMessage();
+        DeleteMessage deleteMessage = new DeleteMessage(chatId, message.getMessageId());
+        sendMessage.setChatId(chatId);
+
+        if (data.startsWith("details_")){
+
+            String str = data.split("/")[0];
+            int basketId = Integer.parseInt(data.split("/")[1]);
+            List<UserProduct> userProducts = WorkWithDatabase.getBasketDetails(basketId);
+            Container.userBaskets.put(chatId, userProducts);
+
+            if (str.equals(InlineKeyboardButtonConstants.DETAILS_CALL_BACK)){
+
+                SendPhoto sendPhoto = showProducts(userProducts, 0);
+                sendPhoto.setChatId(chatId);
+                Container.countButtons.put(chatId, 1);
+                sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getProductButtons(userProducts.get(0).getId()));
+                Container.MY_BOT.sendMsg(sendPhoto);
+                Container.MY_BOT.sendMsg(deleteMessage);
+            }else if (str.equals(InlineKeyboardButtonConstants.CONFIRM_CALL_BACK)){
+                WorkWithDatabase.updateBasket(basketId);
+
+                sendMessage.setText("Buyurtmangiz tasdiqlandi. To'lovni amalaga oshirish uchun admin bilan bo'glaning!");
+                MY_BOT.sendMsg(sendMessage);
+                MY_BOT.sendMsg(deleteMessage);
+            }else if (str.equals(InlineKeyboardButtonConstants.CANCEL_CALL_BACK)){
+                WorkWithDatabase.clearBasket(basketId);
+
+                sendMessage.setText("Savatingiz tozalandi!");
+                MY_BOT.sendMsg(sendMessage);
+                MY_BOT.sendMsg(deleteMessage);
+            }else if (str.equals(InlineKeyboardButtonConstants.BACK1_CALL_BACK)){
+                String str1 = WorkWithDatabase.getBasket(chatId);
+
+                String numberOfItems = str1.split(" : ")[0];
+                String totalPrice = str1.split(" : ")[1];
+                String basketId1 = str1.split(" : ")[2];
+
+                sendMessage.setText("Sizning savatingizda 🛒: " +
+                        "\n\nMahsulot turlari soni 🎆:   " + numberOfItems
+                        + "\nUmumiy summa 🎇:   " + totalPrice);
+                sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmOrCancelMenu(basketId1));
+                MY_BOT.sendMsg(sendMessage);
+                MY_BOT.sendMsg(deleteMessage);
+            }
+
+
+        }else if (data.startsWith("change")){
+            int bdId = Integer.parseInt(data.split(":")[1]);
+            int quantity = WorkWithDatabase.getQuantityOfBasketDetail(bdId);
+            if (data.startsWith(InlineKeyboardButtonConstants.INCREASE_CALL_BACK) && quantity<5){
+                WorkWithDatabase.increaseQuantityOfBasketDetail(bdId);
+            }else if (data.startsWith(InlineKeyboardButtonConstants.DECREASE_CALL_BACK) && quantity >=2){
+                WorkWithDatabase.decreaseQuantityOfBasketDetail(bdId);
+            }
+            int basketId = WorkWithDatabase.getBasketId(chatId);
+            List<UserProduct> userProducts = WorkWithDatabase.getBasketDetails(basketId);
+            SendPhoto sendPhoto = showProducts(userProducts, 0);
+            sendPhoto.setChatId(chatId);
+            sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getProductButtons(userProducts.get(0).getId()));
+            Container.MY_BOT.sendMsg(sendPhoto);
+            Container.MY_BOT.sendMsg(deleteMessage);
+        }else if (data.startsWith(InlineKeyboardButtonConstants.UP_CALL_BACK)){
+            int temp = Container.countButtons.get(chatId);
+            SendPhoto sendPhoto = showProducts(userBaskets.get(chatId), countButtons.get(chatId));
+            sendPhoto.setChatId(chatId);
+            if (temp != userBaskets.get(chatId).size()-1){
+                Container.countButtons.put(chatId, temp+1);
+            }
+            sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getProductButtons2(userBaskets.get(chatId).get(0).getId()));
+            Container.MY_BOT.sendMsg(sendPhoto);
+            Container.MY_BOT.sendMsg(deleteMessage);
+        }else if (data.startsWith(InlineKeyboardButtonConstants.DOWN_CALL_BACK)){
+            int temp = Container.countButtons.get(chatId);
+            SendPhoto sendPhoto = showProducts(userBaskets.get(chatId), countButtons.get(chatId));
+            sendPhoto.setChatId(chatId);
+            if (temp != 0){
+                Container.countButtons.put(chatId, temp-1);
+            }
+            sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getProductButtons1(userBaskets.get(chatId).get(0).getId()));
+            Container.MY_BOT.sendMsg(sendPhoto);
+            Container.MY_BOT.sendMsg(deleteMessage);
+        }
+    }
+
+    private static SendPhoto showProducts(List<UserProduct> userProducts, int i) {
+        SendPhoto sendPhoto = new SendPhoto();
+
+        sendPhoto.setPhoto(new InputFile(userProducts.get(i).getPhoto_file_url()));
+        String photoCaption = "Mahsulot nomi - " +
+                userProducts.get(i).getName() +
+                "\n\nMahsulot narxi - " +
+                userProducts.get(i).getPrice() +
+                "\n\nMahsulot rangi - " +
+                userProducts.get(i).getColor() +
+                "\n\nTanlangan - " +
+                userProducts.get(i).getQuantity();
+
+        sendPhoto.setCaption(photoCaption);
+        return sendPhoto;
     }
 }

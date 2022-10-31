@@ -1051,5 +1051,185 @@ public class WorkWithDatabase {
 
     }
 
+    public static String getBasket(String chatId) {
+        String str = "";
+        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
 
+            Class.forName("org.postgresql.Driver");
+
+            String query = "select count(d.product_id), sum(pr.price * d.quantity), b.id from basket_detail d join basket b on b.id = d.basket_id join product pr ON pr.id = d.product_id where b.customer_id = ? and b.is_confirmed = FALSE group by b.id;";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, chatId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            int num = 0, index = 0;
+            double sum = 0.0;
+            while (resultSet.next()){
+                num = resultSet.getInt(1);
+                sum = resultSet.getDouble(2);
+                index = resultSet.getInt(3);
+            }
+            str = str + num + " : " + sum + " : " + index;
+
+            preparedStatement.close();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return str;
+    }
+
+    public static List<UserProduct> getBasketDetails(int basketId) {
+        List<UserProduct> userProducts = new ArrayList<>();
+        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+            Class.forName("org.postgresql.Driver");
+
+            String query = "select bd.id, pr.name, pr.price, pr.photo_file_id, pr.color, bd.quantity from basket_detail bd join product pr on pr.id = bd.product_id where bd.basket_id = ?;";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, basketId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                int productId = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                double price = resultSet.getDouble("price");
+                String photoUrl = resultSet.getString("photo_file_id");
+                String color = resultSet.getString("color");
+                int quantity = resultSet.getInt("quantity");
+
+                userProducts.add(new UserProduct(productId, name, price, photoUrl, color, quantity));
+            }
+
+            preparedStatement.close();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return userProducts;
+    }
+
+    public static void updateBasket(int basketId) {
+        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+            Class.forName("org.postgresql.Driver");
+
+            String query = "update basket set is_confirmed = true where id =?;";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, basketId);
+
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void clearBasket(int basketId) {
+        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+            Class.forName("org.postgresql.Driver");
+
+            String query = "delete from basket_detail where basket_id = ?;";
+            String query1 = "delete from basket where id = ?;";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            PreparedStatement preparedStatement1 = connection.prepareStatement(query1);
+            preparedStatement.setInt(1, basketId);
+            preparedStatement1.setInt(1, basketId);
+
+            preparedStatement.executeUpdate();
+            preparedStatement1.executeUpdate();
+            preparedStatement.close();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void increaseQuantityOfBasketDetail(int bdId) {
+        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+            Class.forName("org.postgresql.Driver");
+
+            String query = "update basket_detail set quantity = quantity + 1 where id =?;";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, bdId);
+
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void decreaseQuantityOfBasketDetail(int bdId) {
+        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+            Class.forName("org.postgresql.Driver");
+
+            String query = "update basket_detail set quantity = quantity - 1 where id =?;";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, bdId);
+
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static int getQuantityOfBasketDetail(int bdId) {
+        int number = 0;
+        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+            Class.forName("org.postgresql.Driver");
+
+            String query = "select quantity from basket_detail where id =?;";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, bdId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                number = resultSet.getInt(1);
+            }
+            preparedStatement.close();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return number;
+    }
+
+    public static int getBasketId(String chatId) {
+        int number = 0;
+        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+            Class.forName("org.postgresql.Driver");
+
+            String query = "select id from basket join customer on customer.chat_id = basket.customer_id where chat_id =? and basket.is_confirmed = false;";
+
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, chatId);
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()){
+                number = resultSet.getInt(1);
+            }
+            preparedStatement.close();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return number;
+    }
 }

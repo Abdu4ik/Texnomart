@@ -143,4 +143,44 @@ public class InlineKeyboardButtonUtil {
         InlineKeyboardButton button = getButton("O'chirish", "_delete_" + discountId);
         return getMarkup(button);
     }
+
+    //for getting basket details
+    public static InlineKeyboardMarkup getConfirmOrCancelMenu(String basketId) {
+        InlineKeyboardButton details = new InlineKeyboardButton(InlineKeyboardButtonConstants.DETAILS);
+        details.setCallbackData(InlineKeyboardButtonConstants.DETAILS_CALL_BACK + "/" + basketId);
+
+        InlineKeyboardButton confirm = new InlineKeyboardButton(InlineKeyboardButtonConstants.CONFIRM_DEMO);
+        confirm.setCallbackData(InlineKeyboardButtonConstants.CONFIRM_CALL_BACK + "/" + basketId);
+
+        InlineKeyboardButton cancel = new InlineKeyboardButton(InlineKeyboardButtonConstants.CANCEL_DEMO);
+        cancel.setCallbackData(InlineKeyboardButtonConstants.CANCEL_CALL_BACK + "/" + basketId);
+
+        return new InlineKeyboardMarkup(List.of(
+                List.of(details),
+                List.of(confirm, cancel)
+        ));
+    }
+
+    public static ReplyKeyboard getProductButtons(int id) {
+        List<InlineKeyboardButton> buttons1 = new ArrayList<>(Arrays.asList(getButton(DECREASE, DECREASE_CALL_BACK+":"+id), getButton(INCREASE, INCREASE_CALL_BACK+":"+id)));
+        List<InlineKeyboardButton> buttons2 = new ArrayList<>(Arrays.asList(getButton(DOWN, DOWN_CALL_BACK+":"+id), getButton(UP, UP_CALL_BACK+":"+id)));
+        List<InlineKeyboardButton> buttons3 = new ArrayList<>(Arrays.asList(getButton(BACK1, BACK1_CALL_BACK+"/"+id)));
+
+        return getMarkup(buttons1, buttons2, buttons3);
+    }
+
+    public static ReplyKeyboard getProductButtons1(int id) {
+        List<InlineKeyboardButton> buttons1 = new ArrayList<>(Arrays.asList(getButton(DECREASE, DECREASE_CALL_BACK+":"+id), getButton(INCREASE, INCREASE_CALL_BACK+":"+id)));
+        List<InlineKeyboardButton> buttons2 = new ArrayList<>(Arrays.asList(getButton(UP, UP_CALL_BACK+":"+id)));
+        List<InlineKeyboardButton> buttons3 = new ArrayList<>(Arrays.asList(getButton(BACK1, BACK1_CALL_BACK+"/"+id)));
+
+        return getMarkup(buttons1, buttons2, buttons3);
+    }
+    public static ReplyKeyboard getProductButtons2(int id) {
+        List<InlineKeyboardButton> buttons1 = new ArrayList<>(Arrays.asList(getButton(DECREASE, DECREASE_CALL_BACK+":"+id), getButton(INCREASE, INCREASE_CALL_BACK+":"+id)));
+        List<InlineKeyboardButton> buttons2 = new ArrayList<>(Arrays.asList(getButton(DOWN, DOWN_CALL_BACK+":"+id)));
+        List<InlineKeyboardButton> buttons3 = new ArrayList<>(Arrays.asList(getButton(BACK1, BACK1_CALL_BACK+"/"+id)));
+
+        return getMarkup(buttons1, buttons2, buttons3);
+    }
 }

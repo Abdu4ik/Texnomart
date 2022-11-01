@@ -49,4 +49,11 @@ public interface InlineKeyboardButtonConstants {
     String DOWN_CALL_BACK = "button_down_";
     String BACK1 = "Xaridlar oynasiga qaytish";
     String BACK1_CALL_BACK = "details_back_";
+
+    String PREV = "⬅️Oldingi";
+    String PREV_CALL= "_oldingi_";
+    String NEXT = "➡️Keyingi";
+    String NEXT_CALL = "_keyingi_";
+    String CANCEL = "❌";
+    String CANCEL_CALL = "_cancel_";
 }

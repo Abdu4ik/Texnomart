@@ -183,4 +183,9 @@ public class InlineKeyboardButtonUtil {
 
         return getMarkup(buttons1, buttons2, buttons3);
     }
+
+    public static ReplyKeyboard getPrevNextButton(int discountListId) {
+        return getMarkup(getButton(PREV, PREV_CALL+"/"+discountListId),getButton(CANCEL,CANCEL_CALL),
+                getButton(NEXT, NEXT_CALL+"/"+discountListId));
+    }
 }

@@ -93,4 +93,8 @@ public class KeyboardButtonUtil {
         ));
     }
 
+    public static ReplyKeyboard getDiscountedProductsMenu() {
+        return getMarkup(getRowList(getRow(getButton(SHOW_DISCOUNTED_PRODUCTS), getButton(BACK))));
+    }
+
 }

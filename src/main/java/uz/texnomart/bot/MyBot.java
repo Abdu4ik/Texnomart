@@ -25,10 +25,11 @@ public class MyBot extends TelegramLongPollingBot {
                 AdminController.handleMessage(update.getMessage());
             } else UserController.handleMessage(update);
         } else if (update.hasCallbackQuery()) {
+            String id = update.getCallbackQuery().getId();
             if (Container.adminList.contains(String.valueOf(update.getCallbackQuery().getMessage().getChatId())))
                 AdminController.handleCallBackQuery(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getData());
             else
-                UserController.handleCallBackQuery(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getData());
+                UserController.handleCallBackQuery(update.getCallbackQuery().getMessage(), update.getCallbackQuery().getData(), id);
         }
     }
 

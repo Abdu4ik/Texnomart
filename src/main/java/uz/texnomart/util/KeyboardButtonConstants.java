@@ -10,8 +10,8 @@ public interface KeyboardButtonConstants {
     String FILTER = "🔎 Qidiruv";
     String MESSAGE_ADMIN = "📨 Adminga murojaat qilish";
     String CATEGORIES = "📇 Kategoriyalarni ko'rish";
-    String DISCOUNTED_PRODUCTS = "🈹 Chegirmali mahsulotlarni ko'rish"; // yaponchasiga discount sticker shunaqa bo'larkan
-
+    String DISCOUNTED_PRODUCTS = "🈹 Chegirmalar bo'limi"; // yaponchasiga discount sticker shunaqa bo'larkan
+    String SHOW_DISCOUNTED_PRODUCTS = "\uD83D\uDECDChegirmalarni ko'rish";
 
 
     // buttons for admin 👇

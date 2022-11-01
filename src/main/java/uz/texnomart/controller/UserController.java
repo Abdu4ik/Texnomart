@@ -1,5 +1,6 @@
 package uz.texnomart.controller;
 
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
@@ -7,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import uz.texnomart.container.Container;
 import uz.texnomart.db.WorkWithDatabase;
+import uz.texnomart.entity.Discount;
 import uz.texnomart.entity.TelegramUser;
 import uz.texnomart.entity.UserProduct;
 import uz.texnomart.util.InlineKeyboardButtonConstants;
@@ -19,6 +21,8 @@ import java.util.List;
 import static uz.texnomart.container.Container.*;
 import static uz.texnomart.container.Container.userBaskets;
 import static uz.texnomart.db.WorkWithDatabase.changeActive;
+import static uz.texnomart.util.InlineKeyboardButtonConstants.*;
+import static uz.texnomart.util.KeyboardButtonConstants.*;
 
 
 public class UserController {
@@ -55,7 +59,7 @@ public class UserController {
                 Container.MY_BOT.sendMsg(sendMessage);
 
             } else{
-                sendMessage.setText("Choose: ");
+                sendMessage.setText("Menu: ");
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
                 Container.MY_BOT.sendMsg(sendMessage);
             }
@@ -91,7 +95,53 @@ public class UserController {
                         Container.MY_BOT.sendMsg(sendMessage);
                     }
 
-                }else if(text.equals(KeyboardButtonConstants.MESSAGE_ADMIN)){
+                }else if (text.equals(BACK)) {
+                    sendMessage.setText("Menu");
+                    sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
+                    MY_BOT.sendMsg(sendMessage);
+                } else if (text.equals(DISCOUNTED_PRODUCTS)) {
+                    sendMessage.setText("Tanlang: ");
+                    sendMessage.setReplyMarkup(KeyboardButtonUtil.getDiscountedProductsMenu());
+                    MY_BOT.sendMsg(sendMessage);
+                } else if (text.equals(SHOW_DISCOUNTED_PRODUCTS)) {
+                    WorkWithDatabase.deleteExpiredDiscounts();
+                    discountList = WorkWithDatabase.getDiscountsList(chatId);
+
+                    for (int i = 0; i < discountList.size(); i++) {
+                        if (discountList.get(i).getChatId().equals(chatId)) {
+                            if (discountList.get(i).getPhoto_file_id() != null) {
+                                SendPhoto sendPhoto = new SendPhoto();
+                                sendPhoto.setChatId(chatId);
+                                sendPhoto.setPhoto(new InputFile(discountList.get(i).getPhoto_file_id()));
+                                StringBuilder photoCaption = new StringBuilder();
+
+                                if (discountList.get(i).getName() != null) {
+                                    photoCaption.append(discountList.get(i).getName()).append("\n\n");
+                                }
+
+                                photoCaption.append("Ushbu ").append(discountList.get(i).getDiscount_percentage())
+                                        .append("% lik chegirmamiz bilan mahsulotlarimizni faqat ").append(discountList.get(i).getStart_time())
+                                        .append(" dan ").append(discountList.get(i).getEnd_time()).append(" gacha vaqtda xarid qilishga ulgurib qoling\uD83E\uDD29");
+
+                                sendPhoto.setCaption(String.valueOf(photoCaption));
+                                sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getPrevNextButton(i));
+                                MY_BOT.sendMsg(sendPhoto);
+                                break;
+                            } else {
+                                String discountText = discountList.get(i).getName() + "\n\nUshbu " +
+                                        discountList.get(i).getDiscount_percentage() +
+                                        "% lik chegirmamiz bilan mahsulotlarimizni faqat " +
+                                        discountList.get(i).getStart_time() +
+                                        " dan " +
+                                        discountList.get(i).getEnd_time() + " gacha vaqtda xarid qilishga ulgurib qoling\uD83E\uDD29";
+                                sendMessage.setText(discountText);
+                                sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getPrevNextButton(i));
+                                MY_BOT.sendMsg(sendMessage);
+                                break;
+                            }
+                        }
+                    }
+                } else if(text.equals(KeyboardButtonConstants.MESSAGE_ADMIN)){
 
                     Container.customerMap.put(chatId, true);
                     WorkWithDatabase.addMessageData(chatId);
@@ -139,7 +189,7 @@ public class UserController {
         }
     }
 
-    public static void handleCallBackQuery(Message message, String data) {
+    public static void handleCallBackQuery(Message message, String data, String callbackQueryId) {
         String chatId = String.valueOf(message.getChatId());
 
         SendMessage sendMessage = new SendMessage();
@@ -189,7 +239,120 @@ public class UserController {
             }
 
 
-        }else if (data.startsWith("change")){
+        }else if (data.equals(CANCEL_CALL)) {
+            discountList.removeIf(discount -> discount.getChatId().equals(chatId));
+            DeleteMessage deleteMessage1 = new DeleteMessage(chatId, message.getMessageId());
+            MY_BOT.sendMsg(deleteMessage1);
+        } else if (data.startsWith("_oldingi_")) {
+            data = data.substring(data.lastIndexOf("/") + 1);
+            int index = Integer.parseInt(data);
+
+            boolean isExist=false;
+
+            for (int i = 0; i < discountList.size(); i++) {
+                Discount discount = discountList.get(i);
+
+                if (discount.getChatId().equals(chatId) && i < index) {
+                    isExist=true;
+
+                    DeleteMessage deleteMessage1 = new DeleteMessage(chatId, message.getMessageId());
+                    MY_BOT.sendMsg(deleteMessage1);
+
+                    if (discount.getPhoto_file_id() != null) {
+                        SendPhoto sendPhoto = new SendPhoto();
+                        sendPhoto.setChatId(chatId);
+                        sendPhoto.setPhoto(new InputFile(discount.getPhoto_file_id()));
+                        StringBuilder photoCaption = new StringBuilder();
+
+                        if (discount.getName() != null) {
+                            photoCaption.append(discount.getName()).append("\n\n");
+                        }
+
+                        photoCaption.append("Ushbu ").append(discount.getDiscount_percentage())
+                                .append("% lik chegirmamiz bilan mahsulotlarimizni faqat ").append(discount.getStart_time())
+                                .append(" dan ").append(discount.getEnd_time()).append(" gacha vaqtda xarid qilishga ulgurib qoling\uD83E\uDD29");
+
+                        sendPhoto.setCaption(String.valueOf(photoCaption));
+                        sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getPrevNextButton(i));
+                        MY_BOT.sendMsg(sendPhoto);
+                        break;
+                    } else {
+                        sendMessage.setChatId(chatId);
+                        String discountText = discount.getName() + "\n\nUshbu " +
+                                discount.getDiscount_percentage() +
+                                "% lik chegirmamiz bilan mahsulotlarimizni faqat " +
+                                discount.getStart_time() +
+                                " dan " + discount.getEnd_time() + " gacha vaqtda xarid qilishga ulgurib qoling\uD83E\uDD29";
+                        sendMessage.setText(discountText);
+                        sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getPrevNextButton(i));
+                        MY_BOT.sendMsg(sendMessage);
+                        break;
+                    }
+                }
+            }
+
+            if (!isExist) {
+                AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+                answerCallbackQuery.setCallbackQueryId(callbackQueryId);
+                answerCallbackQuery.setText("Siz birinchi betdasiz❕");
+                answerCallbackQuery.setShowAlert(false);
+                MY_BOT.sendMsg(answerCallbackQuery);
+            }
+        } else if (data.startsWith("_keyingi_")) {
+            data = data.substring(data.lastIndexOf("/") + 1);
+            int index = Integer.parseInt(data);
+
+            boolean isExist=false;
+
+            for (int i = 0; i < discountList.size(); i++) {
+                Discount discount = discountList.get(i);
+                if (discount.getChatId().equals(chatId) && i > index) {
+                    isExist=true;
+
+                    DeleteMessage deleteMessage1 = new DeleteMessage(chatId, message.getMessageId());
+                    MY_BOT.sendMsg(deleteMessage1);
+
+                    if (discount.getPhoto_file_id() != null) {
+                        SendPhoto sendPhoto = new SendPhoto();
+                        sendPhoto.setChatId(chatId);
+                        sendPhoto.setPhoto(new InputFile(discount.getPhoto_file_id()));
+                        StringBuilder photoCaption = new StringBuilder();
+
+                        if (discount.getName() != null) {
+                            photoCaption.append(discount.getName()).append("\n\n");
+                        }
+
+                        photoCaption.append("Ushbu ").append(discount.getDiscount_percentage())
+                                .append("% lik chegirmamiz bilan mahsulotlarimizni faqat ").append(discount.getStart_time())
+                                .append(" dan ").append(discount.getEnd_time()).append(" gacha vaqtda xarid qilishga ulgurib qoling\uD83E\uDD29");
+
+                        sendPhoto.setCaption(String.valueOf(photoCaption));
+                        sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getPrevNextButton(i));
+                        MY_BOT.sendMsg(sendPhoto);
+                        break;
+                    } else {
+                        sendMessage.setChatId(chatId);
+                        String discountText = discount.getName() + "\n\nUshbu " +
+                                discount.getDiscount_percentage() +
+                                "% lik chegirmamiz bilan mahsulotlarimizni faqat " +
+                                discount.getStart_time() +
+                                " dan " + discount.getEnd_time() + " gacha vaqtda xarid qilishga ulgurib qoling\uD83E\uDD29";
+                        sendMessage.setText(discountText);
+                        sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getPrevNextButton(i));
+                        MY_BOT.sendMsg(sendMessage);
+                        break;
+                    }
+                }
+            }
+
+            if (!isExist) {
+                AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
+                answerCallbackQuery.setCallbackQueryId(callbackQueryId);
+                answerCallbackQuery.setText("Siz oxirgi betdasiz❕");
+                answerCallbackQuery.setShowAlert(false);
+                MY_BOT.sendMsg(answerCallbackQuery);
+            }
+} else if (data.startsWith("change")){
             int bdId = Integer.parseInt(data.split(":")[1]);
             int quantity = WorkWithDatabase.getQuantityOfBasketDetail(bdId);
             if (data.startsWith(InlineKeyboardButtonConstants.INCREASE_CALL_BACK) && quantity<5){

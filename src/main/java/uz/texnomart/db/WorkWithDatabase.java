@@ -1232,4 +1232,47 @@ public class WorkWithDatabase {
         }
         return number;
     }
+
+    public static void deleteExpiredDiscounts() {
+            String sql = "{ call delete_expired_discounts() }";
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            CallableStatement callableStatement = connection.prepareCall(sql)){
+
+            callableStatement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<Discount> getDiscountsList(String chatId) {
+        try {
+            Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            Statement statement = connection.createStatement();
+            String query = """
+                    select * from discount where is_deleted=false;
+                    """;
+
+            ResultSet resultSet = statement.executeQuery(query);
+
+            List<Discount> discountsList = new ArrayList<>();
+            while (resultSet.next()){
+                int discountPercentage = resultSet.getInt("discount_percentage");
+                String name = resultSet.getString("name");
+                Date start_time = resultSet.getDate("start_time");
+                Date endTime = resultSet.getDate("end_time");
+                String photoFileId = resultSet.getString("photo_file_id");
+                if (photoFileId==null||photoFileId.equals("")){
+                    discountsList.add(new Discount(chatId,discountPercentage,name,start_time.toString(),endTime.toString(),null));
+                }else
+                    discountsList.add(new Discount(chatId,discountPercentage,name,start_time.toString(),endTime.toString(),photoFileId));
+            }
+            connection.close();
+            statement.close();
+
+            return discountsList;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

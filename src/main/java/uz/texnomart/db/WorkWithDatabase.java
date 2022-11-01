@@ -1275,4 +1275,153 @@ public class WorkWithDatabase {
         }
         return null;
     }
+
+    public static void addBasketProductUser(Integer product_id,String chat_id) {
+        int number = 0;
+        int basketId = getBasketId(chat_id);
+        String query = "insert into basket_detail (basket_id,product_id) values(?,?);";
+        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+        ) {
+            Class.forName("org.postgresql.Driver");
+
+            preparedStatement.setInt(1, basketId);
+            preparedStatement.setInt(2, product_id);
+            preparedStatement.execute();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public  static List<Product> searchProductName(String searching){
+        List<Product> productList = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            Class.forName("org.postgresql.Driver");
+
+            String query = "select * from product where name ILIKE '"+searching+"';";
+
+
+            Statement statement = connection.createStatement();
+
+            ResultSet rs= statement.executeQuery(query);
+
+            while (rs.next()) {
+                int id = rs.getInt(1);
+                String name = rs.getString(2);
+                int category_id = rs.getInt(3);
+                BigDecimal price=rs.getBigDecimal(4);
+                boolean is_deleted = rs.getBoolean(5);
+                String photo_file_id = rs.getString(6);
+                String color = rs.getString(7);
+                productList.add(new Product(id,name,category_id,price,is_deleted,photo_file_id,color));
+            }
+            return  productList;
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return  null;
+
+    }
+
+    public  static List<Product> searchProductByPrice(String searchPrice){
+        String[] pricersearch=searchPrice.split("-");
+        int beginPrice= Integer.parseInt(pricersearch[0]);
+        int endPrice= Integer.parseInt(pricersearch[1]);
+
+        List<Product> productList = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            Class.forName("org.postgresql.Driver");
+
+            String query = "select * from product where price between "+beginPrice+" and "+endPrice+";";
+
+
+            Statement statement = connection.createStatement();
+
+            ResultSet rs= statement.executeQuery(query);
+            while (rs.next()) {
+                int id = rs.getInt(1);
+                String name = rs.getString(2);
+                int category_id = rs.getInt(3);
+                BigDecimal price=rs.getBigDecimal(4);
+                boolean is_deleted = rs.getBoolean(5);
+                String photo_file_id = rs.getString(6);
+                String color = rs.getString(7);
+                productList.add(new Product(id,name,category_id,price,is_deleted,photo_file_id,color));
+            }
+            return  productList;
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return  null;
+
+    }
+
+    public  static List<Product> searchProductColor(String searchColor){
+        List<Product> productList = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+            Class.forName("org.postgresql.Driver");
+
+            String query = "select * from product where color ILIKE '"+searchColor+"';";
+
+            Statement statement = connection.createStatement();
+
+            ResultSet rs= statement.executeQuery(query);
+            while (rs.next()) {
+                int id = rs.getInt(1);
+                String name = rs.getString(2);
+                int category_id = rs.getInt(3);
+                BigDecimal price=rs.getBigDecimal(4);
+                boolean is_deleted = rs.getBoolean(5);
+                String photo_file_id = rs.getString(6);
+                String color = rs.getString(7);
+                productList.add(new Product(id,name,category_id,price,is_deleted,photo_file_id,color));
+            }
+            return  productList;
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return  null;
+
+    }
+
+    public static void addBasketProduct(String chat_id) {
+        int number = 0;
+        int basketId = getBasketId(chat_id);
+        String query = "insert into basket (customer_id) values(?);";
+        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+        ) {
+            Class.forName("org.postgresql.Driver");
+
+            preparedStatement.setString(1, chat_id);
+            preparedStatement.execute();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+    public static String deleteProduct(Integer product_id) {
+        //
+        String response = "";
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD)) {
+
+            String query = "update product set is_deleted=true  where id=?";
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, product_id);
+            if (preparedStatement.executeUpdate() == 1) {
+                response = "Successfully delete product ";
+            }
+
+        } catch (SQLException e) {
+            response = "Productni delete qilishda exceptionga tushdi bu ";
+        }
+        return response;
+    }
 }

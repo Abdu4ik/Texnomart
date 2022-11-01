@@ -13,11 +13,8 @@ import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import uz.texnomart.bot.MyBot;
 import uz.texnomart.container.Container;
 import uz.texnomart.db.WorkWithDatabase;
-import uz.texnomart.entity.Advertisement;
-import uz.texnomart.entity.MessageData;
-import uz.texnomart.entity.UserMessage;
+import uz.texnomart.entity.*;
 import uz.texnomart.enums.AdminStatus;
-import uz.texnomart.entity.Discount;
 import uz.texnomart.service.AdminService;
 import uz.texnomart.service.WorkWithFiles;
 import uz.texnomart.util.InlineKeyboardButtonConstants;
@@ -39,6 +36,7 @@ public class AdminController {
         if (AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.SEND_ADS)){
             AdminService.sendAdsToAllCustomers(message);
             MY_BOT.sendMsg(new SendMessage(String.valueOf(message.getChatId()), "Reklama barcha foydalanuvchilarga yuborildi! ✅"));
+            adminMap.put(String.valueOf(message.getChatId()), null);
         }else if (message.hasText()) {
             handleText(message);
         } else if (message.hasContact()) {
@@ -60,6 +58,16 @@ public class AdminController {
             sendPhoto.setCaption(caption + "\n\n Shu e'lonni barcha foydalanuvchilarga yurborasizmi?");
             sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmationButtons());
             MY_BOT.sendMsg(sendPhoto);
+        }
+
+        if (AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.ADD_PRODUCT)){
+            SendPhoto sendPhoto = new SendPhoto();
+            sendPhoto.setChatId(message.getChatId());
+            String photo = photoSizeList.get(photoSizeList.size() - 1).getFileId();
+
+
+
+
         }
 
         if (AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.ADD_DISCOUNT)) {
@@ -218,6 +226,7 @@ public class AdminController {
             MY_BOT.sendMsg(sendMessage);
         }else if (AdminService.checkAdminStatus(chatId, AdminStatus.ADD_PARENT_C)){
             // Todo write a method that will take .text. which will be the new parent category and create a new parent category
+
             sendMessage.setText(WorkWithDatabase.createNewParentCategory(text));
             MY_BOT.sendMsg(sendMessage);
         }else if (text.equals(_ADD_SUB_C_) && AdminService.checkAdminStatus(chatId, AdminStatus.ADD_CATEGORIES)){
@@ -233,11 +242,13 @@ public class AdminController {
             sendMessage.setText("O'chirishingiz mumkin bo'lgan kategoriyalar:");
             sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getCategoryButtonsForUser(WorkWithDatabase.parentCategoryList()));
             MY_BOT.sendMsg(sendMessage);
+            adminMap.put(chatId, null);
         } else if (text.equals(_REMOVE_SUB_C_) && AdminService.checkAdminStatus(chatId, AdminStatus.ADD_CATEGORIES)){
             AdminService.changeAdminStatus(chatId, AdminStatus.REMOVE_CHILD_C);
             sendMessage.setText("O'chirmoqhi bo'lgan sub kategoriyaning parent kategoriyasini tanlang:");
             sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getCategoryButtonsForUser(WorkWithDatabase.parentCategoryList()));
             MY_BOT.sendMsg(sendMessage);
+            adminMap.put(chatId, null);
         } else if (false){
 
         } else if (false){
@@ -434,7 +445,11 @@ public class AdminController {
                 }
             }
             AdminService.putAminsIntoMap(chatId);
-        } else if (data.equals(YES_CALL) && AdminService.checkAdminStatus(chatId, AdminStatus.SEND_ADS)) {
+        }else if (data.startsWith(DELETE_P)){
+            WorkWithDatabase.deleteProduct(Integer.valueOf(data.split("/")[1]));
+            sendMessage.setText("Mahsulot o'chirildi!");
+            MY_BOT.sendMsg(sendMessage);
+        }else if (data.equals(YES_CALL) && AdminService.checkAdminStatus(chatId, AdminStatus.SEND_ADS)) {
             Advertisement adToBeSent = WorkWithDatabase.getAdFromDB(chatId);
             AdminService.sendAdsToAllCustomers(adToBeSent.getPhoto(), adToBeSent.getCaption());
             sendMessage.setText("Reklama barcha foydalanuvchilarga muvaffaqiyatli yuborildi! 🎉");
@@ -465,16 +480,72 @@ public class AdminController {
             MY_BOT.sendMsg(sendMessage);
         }else if (data.startsWith("parent")) {
             String[] split = data.split("/");
-            sendMessage.setText(split[1] +"ning sub kategoriya(lar)i:");
-            sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getSubCategoryButtons(WorkWithDatabase.getSubCategoryList(split[2])));
-            MY_BOT.sendMsg(sendMessage);
+            if (WorkWithDatabase.getSubCategoryList(split[2])==null){
+                sendMessage.setText("Hozircha bu kategoriyaning sub kategoriyasi mavjud emas!");
+                MY_BOT.sendMsg(sendMessage);
+            }else{
+                sendMessage.setText(split[1] + "ning sub kategoriya(lar)i:");
+                sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getSubCategoryButtons(WorkWithDatabase.getSubCategoryList(split[2])));
+                MY_BOT.sendMsg(sendMessage);
+            }
         }else if (data.startsWith("sub") && AdminService.checkAdminStatus(chatId, AdminStatus.REMOVE_CHILD_C)){
             String[] split = data.split("/");
             sendMessage.setText(WorkWithDatabase.deleteSubCategory(split[1]));
             MY_BOT.sendMsg(sendMessage);
         } else if (data.startsWith("sub")) {
             String[] split = data.split("/");
-            // Todo
+            System.out.println(WorkWithDatabase.getProductOneByOne(Integer.parseInt(split[2])).size()+" ta product");
+            if (WorkWithDatabase.getProductOneByOne(Integer.parseInt(split[2])).size()==0){
+                sendMessage.setText("Hozircha bu kategoriyada mahsulot mavjud emas!");
+                MY_BOT.sendMsg(sendMessage);
+            }else {
+                productMap.put(chatId, WorkWithDatabase.getProductOneByOne(Integer.parseInt(split[2])));
+                Product product = productMap.get(chatId).get(0);
+                SendPhoto sendPhoto = new SendPhoto();
+                sendPhoto.setChatId(chatId);
+                buttonPressCount.put(chatId, 1); // forward yoki back buttonini nechchi marta bosganini yozib boradi
+                sendPhoto.setPhoto(new InputFile(product.getPhoto_file_id()));
+                sendPhoto.setCaption("Mahsulot nomi: " + product.getName() + "\n\n" +
+                        "Narxi: " + product.getPrice() + "\n\n" +
+                        "Rangi: " + product.getColor()
+                );
+                sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getProductButtons(product.getId()));
+                MY_BOT.sendMsg(sendPhoto);
+            }
+        }else if (data.startsWith(FORWARD_P)){
+            int temp = buttonPressCount.get(chatId);
+            SendPhoto sendPhoto = new SendPhoto();
+            sendPhoto.setChatId(chatId);
+            Product product = productMap.get(chatId).get(temp);
+            sendPhoto.setPhoto(new InputFile(product.getPhoto_file_id()));
+            sendPhoto.setCaption("Mahsulot nomi: "+product.getName()+"\n\n"+
+                    "Narxi: "+product.getPrice()+ "\n\n"+
+                    "Rangi: "+ product.getColor()
+            );
+            if (temp == productMap.get(chatId).size()-1){
+                sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getProductButtonsWORight(product.getId()));
+            }else {
+                sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getProductButtons(product.getId()));
+                buttonPressCount.put(chatId, ++temp);
+            }
+            MY_BOT.sendMsg(sendPhoto);
+        } else if (data.startsWith(BACK)){
+            SendPhoto sendPhoto = new SendPhoto();
+            sendPhoto.setChatId(chatId);
+            int temp = buttonPressCount.get(chatId);
+            Product product = productMap.get(chatId).get(temp);
+            sendPhoto.setPhoto(new InputFile(product.getPhoto_file_id()));
+            sendPhoto.setCaption("Mahsulot nomi: "+product.getName()+"\n\n"+
+                    "Narxi: "+product.getPrice()+ "\n\n"+
+                    "Rangi: "+ product.getColor()
+            );
+            if (temp == 0){
+                sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getProductButtonsWOLeft(product.getId()));
+            }else {
+                sendPhoto.setReplyMarkup(InlineKeyboardButtonUtil.getProductButtons(product.getId()));
+                buttonPressCount.put(chatId, --temp);
+            }
+            MY_BOT.sendMsg(sendPhoto);
         }
 
         String customerMessage = message.getText().split(" : ")[2];

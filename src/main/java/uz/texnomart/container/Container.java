@@ -18,13 +18,18 @@ public class Container {
     public static String TOKEN = "5661973677:AAHYWKKcEHD6j7OQIkMj3BkXPiuLn_KTy9c";
     public static String USERNAME = "@texnomart_all_product_bot";
 
-    public static List<String> adminList = new ArrayList<>(List.of("164940659","", "698010075"));
+    public static List<String> adminList = new ArrayList<>(List.of("698010075", "164940659"));
+
 
     // database stuff
 
-    public static final String USER = "utpvoxxsoitfbq";
-    public static final String PASSWORD = "0ae03e88b14ced6a6e431080225030545efe9af022cc14f62fb96346a3a16ea5";
-    public static final String URL = "jdbc:postgresql://ec2-54-75-26-218.eu-west-1.compute.amazonaws.com:5432/dae44hkoegn6lq";
+//    public static final String USER = "utpvoxxsoitfbq";
+//    public static final String PASSWORD = "0ae03e88b14ced6a6e431080225030545efe9af022cc14f62fb96346a3a16ea5";
+//    public static final String URL = "jdbc:postgresql://ec2-54-75-26-218.eu-west-1.compute.amazonaws.com:5432/dae44hkoegn6lq";
+
+    public static final String USER = "postgres";
+    public static final String PASSWORD = "1";
+    public static final String URL = "jdbc:postgresql://localhost:5432/tex_backup_rest";
 
     // admin status 👇
 
@@ -52,4 +57,5 @@ public class Container {
     //for getting basket details
     public static Map<String, List<UserProduct>> userBaskets = new HashMap<String, List<UserProduct>>();
     public static Map<String, Integer> countButtons = new HashMap<>();
+    public static String lastMessage = "";
 }

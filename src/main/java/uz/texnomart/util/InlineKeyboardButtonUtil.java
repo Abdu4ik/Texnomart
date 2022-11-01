@@ -10,6 +10,7 @@ import java.util.List;
 
 import static uz.texnomart.container.Container.*;
 import static uz.texnomart.util.InlineKeyboardButtonConstants.*;
+import static uz.texnomart.util.KeyboardButtonConstants.BACK;
 
 public class InlineKeyboardButtonUtil {
 
@@ -187,5 +188,53 @@ public class InlineKeyboardButtonUtil {
     public static ReplyKeyboard getPrevNextButton(int discountListId) {
         return getMarkup(getButton(PREV, PREV_CALL+"/"+discountListId),getButton(CANCEL,CANCEL_CALL),
                 getButton(NEXT, NEXT_CALL+"/"+discountListId));
+    }
+
+    public static ReplyKeyboard getProductButtonsWOLeft(Integer id) {
+        List<InlineKeyboardButton> buttons1 = new ArrayList<>(Arrays.asList(getButton(DELETE_P, DELETE_P+"/"+id), getButton(ADD_PRODUCT, ADD_PRODUCT+"/"+id)));
+        List<InlineKeyboardButton> buttons2 = new ArrayList<>(Arrays.asList(getButton(EDIT_PRICE_P, EDIT_PRICE_P+"/"+id), getButton(EDIT_NAME_P, EDIT_NAME_P+"/"+id)));
+        List<InlineKeyboardButton> buttons3 = new ArrayList<>(Arrays.asList(getButton(FORWARD_P, FORWARD_P)));
+        return getMarkup(buttons1, buttons2, buttons3);
+    }
+    public static ReplyKeyboard getProductButtons(Integer id) {
+        List<InlineKeyboardButton> buttons1 = new ArrayList<>(Arrays.asList(getButton(DELETE_P, DELETE_P+"/"+id), getButton(ADD_PRODUCT, ADD_PRODUCT+"/"+id)));
+        List<InlineKeyboardButton> buttons2 = new ArrayList<>(Arrays.asList(getButton(EDIT_PRICE_P, EDIT_PRICE_P+"/"+id), getButton(EDIT_NAME_P, EDIT_NAME_P+"/"+id)));
+        List<InlineKeyboardButton> buttons3 = new ArrayList<>(Arrays.asList(getButton(BACK, BACK), getButton(FORWARD_P, FORWARD_P)));
+        return getMarkup(buttons1, buttons2, buttons3);
+    }
+
+    public static ReplyKeyboard getProductButtonsWORight(Integer id) {
+        List<InlineKeyboardButton> buttons1 = new ArrayList<>(Arrays.asList(getButton(DELETE_P, DELETE_P+"/"+id), getButton(ADD_PRODUCT, ADD_PRODUCT+"/"+id)));
+        List<InlineKeyboardButton> buttons2 = new ArrayList<>(Arrays.asList(getButton(EDIT_PRICE_P, EDIT_PRICE_P+"/"+id), getButton(EDIT_NAME_P, EDIT_NAME_P+"/"+id)));
+        List<InlineKeyboardButton> buttons3 = new ArrayList<>(Arrays.asList(getButton(BACK, BACK)));
+        return getMarkup(buttons1, buttons2, buttons3);
+    }
+
+
+
+    /////////////
+
+    public static ReplyKeyboard getProductButtonsWOLeftFU(String chatId,Integer id) {
+        List<InlineKeyboardButton> buttons1 = new ArrayList<>(Arrays.asList(getButton(ADD_TO_BASKET, ADD_TO_BASKET+"/"+id+"/"+chatId)));
+        List<InlineKeyboardButton> buttons3 = new ArrayList<>(Arrays.asList(getButton(FORWARD_P, FORWARD_P)));
+        return getMarkup(buttons1, buttons3);
+    }
+    public static ReplyKeyboard getProductButtonsFU(String chatId, Integer id) {
+        List<InlineKeyboardButton> buttons1 = new ArrayList<>(Arrays.asList(getButton(ADD_TO_BASKET, ADD_TO_BASKET+"/"+id+"/"+chatId)));
+        List<InlineKeyboardButton> buttons3 = new ArrayList<>(Arrays.asList(getButton(BACK, BACK), getButton(FORWARD_P, FORWARD_P)));
+        return getMarkup(buttons1, buttons3);
+    }
+
+    public static ReplyKeyboard getProductButtonsWORightFU(String chatId, Integer id) {
+        List<InlineKeyboardButton> buttons1 = new ArrayList<>(Arrays.asList(getButton(ADD_TO_BASKET, ADD_TO_BASKET+"/"+id+"/"+chatId)));
+        List<InlineKeyboardButton> buttons3 = new ArrayList<>(Arrays.asList(getButton(BACK, BACK)));
+        return getMarkup(buttons1, buttons3);
+    }
+
+
+    public static ReplyKeyboard buttonsForUserSearch() {
+        List<InlineKeyboardButton> buttons1 = new ArrayList<>(Arrays.asList(getButton(SEARCH_BY_NAME, SEARCH_BY_NAME), getButton(SEARCH_BY_COST, SEARCH_BY_COST)));
+        List<InlineKeyboardButton> buttons3 = new ArrayList<>(Arrays.asList(getButton(SEARCH_BY_COLOR, SEARCH_BY_COLOR), getButton(BACK_TO_SEARCH, BACK_TO_SEARCH)));
+        return getMarkup(buttons1, buttons3);
     }
 }

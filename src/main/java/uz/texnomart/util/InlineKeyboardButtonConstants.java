@@ -4,6 +4,17 @@ public interface InlineKeyboardButtonConstants {
     String ADD_BASKET = "➕ Savatga qo'shish";
     String ADD_BASKET_CALL = "_add_basket_";
 
+
+
+    String FORWARD_P = "Odinga ➡";
+    String DELETE_P ="❌ O'chirish";
+    String EDIT_PRICE_P = "💵 Narxini o'zagartirish";
+    String EDIT_NAME_P = "Nomini o'zgartirish";
+    String ADD_PRODUCT = "➕ Qo'shish";
+
+    String ADD_TO_BASKET = "Savatchaga qo'shish 🧺";
+
+
     String ORDER = "📝 Buyurtma qilish";
     String ORDER_CALL = "_ORDER_";
     String CHANGE_NUMBER = "🔢 Sonini o'zgartirish";
@@ -56,4 +67,9 @@ public interface InlineKeyboardButtonConstants {
     String NEXT_CALL = "_keyingi_";
     String CANCEL = "❌";
     String CANCEL_CALL = "_cancel_";
+
+    String SEARCH_BY_NAME = " Nomi orqali";
+    String SEARCH_BY_COST = "💵 Narxi orqali" ;
+    String SEARCH_BY_COLOR = "⭕ Rangi orqali";
+    String BACK_TO_SEARCH = "🔙 Orqaga";
 }

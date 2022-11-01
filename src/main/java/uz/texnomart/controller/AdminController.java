@@ -36,7 +36,10 @@ import static uz.texnomart.util.KeyboardButtonConstants.*;
 
 public class AdminController {
     public static void handleMessage(Message message) {
-        if (message.hasText()) {
+        if (AdminService.checkAdminStatus(String.valueOf(message.getChatId()), AdminStatus.SEND_ADS)){
+            AdminService.sendAdsToAllCustomers(message);
+            MY_BOT.sendMsg(new SendMessage(String.valueOf(message.getChatId()), "Reklama barcha foydalanuvchilarga yuborildi! ✅"));
+        }else if (message.hasText()) {
             handleText(message);
         } else if (message.hasContact()) {
             handleContact(message, message.getContact());
@@ -152,9 +155,11 @@ public class AdminController {
         } else if (text.equals(_SEND_ADS_)) {
             adminMap.put(chatId, null);
             AdminService.changeAdminStatus(chatId, AdminStatus.SEND_ADS);
-            sendMessage.setText("🖼️ Reklamangizni jo'nating.");
+            sendMessage.setText("🖼️ Reklamangizni jo'nating." +
+                    "\n\n" +
+                    "⚠️Diqqat! Reklama siz tomondan jo'natilgani zahoti barcha foydalanuvchilarga yuboriladi!" +
+                    " Shuni hisobga olib appropriate va correct reklama yuboring!");
             MY_BOT.sendMsg(sendMessage);
-
         } else if (text.equals(_DISCOUNT_)) {
             AdminService.changeAdminStatus(chatId, AdminStatus.DISCOUNT);
             sendMessage.setText("Tanlang: ");

@@ -1,5 +1,6 @@
 package uz.texnomart.bot;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
@@ -50,6 +51,8 @@ public class MyBot extends TelegramLongPollingBot {
                 return execute((SendPhoto) obj);
             }else if (obj instanceof SendDocument) {
                 execute((SendDocument) obj);
+            }else if (obj instanceof ForwardMessage) {
+                execute((ForwardMessage) obj);
             }
         } catch (TelegramApiException e) {
             e.printStackTrace();

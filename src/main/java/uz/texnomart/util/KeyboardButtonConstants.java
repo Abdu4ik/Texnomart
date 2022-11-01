@@ -4,7 +4,7 @@ package uz.texnomart.util;
 public interface KeyboardButtonConstants {
 
     // buttons for users 👇
-    String SHOW_BASKET = " 🛒 Savatni ko'rish";
+    String SHOW_BASKET = "🛒 Savatni ko'rish";
     String CLEAR_BASKET = "🧺 Savatni tozalash";
     String BACK = "🔙 Orqaga";
     String FILTER = "🔎 Qidiruv";

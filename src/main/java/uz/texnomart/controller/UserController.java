@@ -63,6 +63,27 @@ public class UserController {
                 sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
                 Container.MY_BOT.sendMsg(sendMessage);
             }
+        }else if(text.equals(KeyboardButtonConstants.SHOW_BASKET)){
+
+            String str = WorkWithDatabase.getBasket(chatId);
+            String[] split = str.split(":");
+            String numberOfItems = split[0];
+            String totalPrice = split[1];
+            String basketId = split[2];
+//                    String numberOfItems = str.split(" : ")[0];
+//                    String totalPrice = str.split(" : ")[1];
+//                    String basketId = str.split(" : ")[2];
+            if (numberOfItems.equals("0")){
+                sendMessage.setText("Savatingizda hech narsa yo'q");
+                MY_BOT.sendMsg(sendMessage);
+            }else {
+                sendMessage.setText("Sizning savatingizda 🛒: " +
+                        "\n\nMahsulot turlari soni 🎆:   " + numberOfItems
+                        + "\nUmumiy summa 🎇:   " + totalPrice);
+                sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmOrCancelMenu(basketId));
+                Container.MY_BOT.sendMsg(sendMessage);
+            }
+
         }else{
             if(customer == null){
                 sendMessage.setText("Botdan to'liq foydalanish uchun telefon raqamingizni jo'nating: ");
@@ -77,24 +98,6 @@ public class UserController {
                     sendMessage.setText("Menu");
                     sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());
                     Container.MY_BOT.sendMsg(sendMessage);
-                }else if(text.equals(KeyboardButtonConstants.SHOW_BASKET)){
-
-                    String str = WorkWithDatabase.getBasket(chatId);
-
-                    String numberOfItems = str.split(" : ")[0];
-                    String totalPrice = str.split(" : ")[1];
-                    String basketId = str.split(" : ")[2];
-                    if (numberOfItems.equals("0")){
-                        sendMessage.setText("Savatingizda hech narsa yo'q");
-                        MY_BOT.sendMsg(sendMessage);
-                    }else {
-                        sendMessage.setText("Sizning savatingizda 🛒: " +
-                                "\n\nMahsulot turlari soni 🎆:   " + numberOfItems
-                                + "\nUmumiy summa 🎇:   " + totalPrice);
-                        sendMessage.setReplyMarkup(InlineKeyboardButtonUtil.getConfirmOrCancelMenu(basketId));
-                        Container.MY_BOT.sendMsg(sendMessage);
-                    }
-
                 }else if (text.equals(BACK)) {
                     sendMessage.setText("Menu");
                     sendMessage.setReplyMarkup(KeyboardButtonUtil.getUserMenu());

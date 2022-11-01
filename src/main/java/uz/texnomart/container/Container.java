@@ -15,10 +15,10 @@ import java.util.Map;
 public class Container {
 
     public static MyBot MY_BOT = null;
-    public static String TOKEN = "5769474941:AAEEgcFwkVu7-ANOBQO1K7wq9CtgeVwel8M";
-    public static String USERNAME = "http://t.me/abdullo_khayrulloev_s_bot";
+    public static String TOKEN = "5661973677:AAHYWKKcEHD6j7OQIkMj3BkXPiuLn_KTy9c";
+    public static String USERNAME = "@texnomart_all_product_bot";
 
-    public static List<String> adminList = new ArrayList<>(List.of("164940659","609762012", "698010075"));
+    public static List<String> adminList = new ArrayList<>(List.of("164940659","", "698010075"));
 
     // database stuff
 

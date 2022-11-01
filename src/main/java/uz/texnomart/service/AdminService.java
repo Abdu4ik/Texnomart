@@ -1,6 +1,8 @@
 package uz.texnomart.service;
+import org.telegram.telegrambots.meta.api.methods.ForwardMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import uz.texnomart.container.Container;
 import uz.texnomart.entity.TelegramUser;
 import uz.texnomart.enums.AdminStatus;
@@ -48,6 +50,27 @@ public class AdminService {
             }
         }
 
+    }
+    public static void sendAdsToAllCustomers(Message message){
+//        select * from customer where user_role = 'USER'::user_roles order by id;
+
+        try (Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+             Statement statement = connection.createStatement()
+        ) {
+
+            String query = """
+                              select chat_id from customer where user_role = 'USER'::user_roles;
+                    """;
+            ResultSet resultSet = statement.executeQuery(query);
+
+            while (resultSet.next()) {
+                String chat_id = resultSet.getString("chat_id");
+                ForwardMessage forwardMessage = new ForwardMessage(chat_id, String.valueOf(message.getChatId()), message.getMessageId());
+                MY_BOT.sendMsg(forwardMessage);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public static boolean checkAdminStatus(String chatId, AdminStatus adminStatus){

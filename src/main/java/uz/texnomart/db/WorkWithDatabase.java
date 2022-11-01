@@ -1070,7 +1070,7 @@ public class WorkWithDatabase {
                 sum = resultSet.getDouble(2);
                 index = resultSet.getInt(3);
             }
-            str = str + num + " : " + sum + " : " + index;
+            str = str + num + ":" + sum + ":" + index;
 
             preparedStatement.close();
 
